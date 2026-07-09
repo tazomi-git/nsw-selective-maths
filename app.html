@@ -123,6 +123,9 @@
   .concept .eg b{color:var(--brand-dark)}
   details.methodDetails{margin-bottom:12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:8px 12px}
   details.methodDetails summary{color:var(--brand);font-weight:700}
+  .histrow{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;flex-wrap:wrap}
+  .histrow .sc{font-weight:800;font-size:16px;min-width:60px}
+  .histrow .meta{font-size:13px;color:var(--muted)}
   @media(max-width:560px){.catrow .name{width:130px}}
 </style>
 </head>
@@ -138,6 +141,14 @@
 
   <!-- DASHBOARD -->
   <section id="view-dashboard">
+    <div id="resumeCard" class="card hidden" style="border-color:#f59e0b;background:#fffbeb">
+      <div class="row"><h2 style="margin:0">⏸ Resume unfinished exam</h2></div>
+      <p class="note" id="resumeInfo"></p>
+      <div class="row">
+        <button id="resumeBtn" class="btn-primary">Resume</button>
+        <button id="discardBtn" class="btn-ghost btn-sm">Discard</button>
+      </div>
+    </div>
     <div class="card">
       <h2>Weekly mock exams</h2>
       <p class="note">Each paper mirrors the real test: 35 multiple-choice questions (A–E), 40-minute countdown, balanced across the five strands. Your best result per week is saved on this device.</p>
@@ -172,6 +183,12 @@
     </div>
 
     <div class="card">
+      <h2>Past attempts</h2>
+      <p class="note">Every completed exam and drill is saved here. Open one to review each question, your answer, the timing and the full explanation.</p>
+      <div id="historyList"></div>
+    </div>
+
+    <div class="card">
       <div class="row">
         <div>
           <h2 style="margin:0 0 4px">Overall</h2>
@@ -191,6 +208,7 @@
       <div class="progress-mini"><div class="bar"><i id="examProg" style="width:0%"></i></div></div>
       <div class="qcount"><span id="answeredCount">0</span>/<span id="totalCount">35</span></div>
       <span class="spacer"></span>
+      <button id="exitBtn" class="btn-ghost btn-sm">Save &amp; exit</button>
       <button id="submitBtn" class="btn-primary btn-sm">Submit paper</button>
     </div>
     <div class="card">
@@ -274,9 +292,18 @@ function show(v){for(const k in views)views[k].classList.toggle("hidden",k!==v);
 // ---------- persistence ----------
 function blankStore(){
   const cs={}; CATEGORIES.forEach(c=>cs[c]={correct:0,seen:0});
-  return {version:1,categoryStats:cs,weekBest:{},attempts:0,flagged:{}};
+  return {version:1,categoryStats:cs,weekBest:{},attempts:0,flagged:{},history:[],inProgress:null};
 }
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.version)return s;}catch(e){}return blankStore();}
+function normalize(s){
+  if(!s.categoryStats)s.categoryStats={};
+  CATEGORIES.forEach(c=>{if(!s.categoryStats[c])s.categoryStats[c]={correct:0,seen:0};});
+  if(!s.weekBest)s.weekBest={};if(!s.flagged)s.flagged={};
+  if(typeof s.attempts!=="number")s.attempts=0;
+  if(!Array.isArray(s.history))s.history=[];
+  if(s.inProgress===undefined)s.inProgress=null;
+  return s;
+}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.version)return normalize(s);}catch(e){}return blankStore();}
 function save(s){localStorage.setItem(KEY,JSON.stringify(s));}
 let store=load();
 
@@ -297,6 +324,40 @@ function setFocusPhase(){
   const q=sess.questions[sess.idx];const cf=conceptFor(q);
   sess.phase=(cf&&!sess.learned.has(cf.key)&&!sess.answers[q.id])?"learn":"try";
 }
+// ---- resume / save-in-progress (timed modes only) ----
+function saveProgress(){
+  if(!sess||sess.review||(sess.mode!=="mock"&&sess.mode!=="triage"))return;
+  accumulate();
+  store.inProgress={mode:sess.mode,week:sess.week,idx:sess.idx,answers:sess.answers,qTime:sess.qTime,
+    flags:[...sess.flags],parked:[...sess.parked],timeLeft:sess.timeLeft,pass:sess.pass,savedAt:Date.now()};
+  save(store);
+}
+function clearProgress(){store.inProgress=null;save(store);}
+function resumeExam(){
+  const p=store.inProgress;if(!p)return;
+  sess={mode:p.mode,week:p.week,questions:byWeek(p.week),answers:p.answers||{},
+    flags:new Set(p.flags||[]),parked:new Set(p.parked||[]),idx:p.idx||0,
+    timeLeft:p.timeLeft,timerId:null,qTime:p.qTime||{},curStart:Date.now(),qLeft:null,
+    pass:p.pass||1,learned:new Set(),phase:"try",review:false};
+  $("totalCount").textContent=sess.questions.length;$("qTotal").textContent=sess.questions.length;
+  $("timer").style.display="";
+  $("submitBtn").textContent=sess.mode==="triage"?"Finish drill":"Submit paper";
+  $("exitBtn").textContent="Save & exit";
+  if(sess.mode==="triage"&&sess.pass===1)sess.qLeft=sess.questions[sess.idx].estSecs;
+  if(sess.mode==="triage"&&sess.pass===2)$("triageBanner").innerHTML="<b>Second pass.</b> Revisit the questions you parked or skipped.";
+  tick();sess.timerId=setInterval(onTick,1000);
+  renderQuestion();renderNav();updateProg();renderQTimer();
+  show("exam");
+}
+function reviewAttempt(h){
+  sess={mode:h.mode,week:h.week,questions:byWeek(h.week),answers:h.answers||{},
+    flags:new Set(),parked:new Set(),idx:0,timerId:null,qTime:h.qTime||{},curStart:null,
+    qLeft:null,pass:1,learned:new Set(),phase:"try",review:true};
+  const perCat={};CATEGORIES.forEach(c=>perCat[c]={correct:0,total:0});
+  sess.questions.forEach(q=>{perCat[q.category].total++;if(sess.answers[q.id]===q.answer)perCat[q.category].correct++;});
+  renderResults({correct:h.correct,total:h.total,timeUsed:h.timeUsed,perCat,newFlags:0,auto:false});
+}
+function fmtDate(iso){try{const d=new Date(iso);return d.toLocaleDateString(undefined,{day:"numeric",month:"short"})+" "+d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});}catch(e){return "";}}
 
 // ---------- session ----------
 let sess=null;
@@ -324,6 +385,7 @@ function beginSession(timed){
   $("qTotal").textContent=sess.questions.length;
   $("timer").style.display=timed?"":"none";
   $("submitBtn").textContent=sess.mode==="focus"?"Finish practice":(sess.mode==="triage"?"Finish drill":"Submit paper");
+  $("exitBtn").textContent=sess.mode==="focus"?"Exit":"Save & exit";
   if(sess.mode==="triage"){sess.idx=firstCandidate();}
   sess.curStart=Date.now();
   if(sess.mode==="triage"&&sess.pass===1)sess.qLeft=sess.questions[sess.idx].estSecs;
@@ -340,6 +402,7 @@ function onTick(){
     sess.qLeft--;renderQTimer();
     if(sess.qLeft<=0)parkCurrent();
   }
+  if(sess.timeLeft%5===0)saveProgress();
 }
 function tick(){
   const t=$("timer");t.textContent=fmt(Math.max(0,sess.timeLeft));
@@ -366,6 +429,7 @@ function goTo(i){
   sess.qLeft=(sess.mode==="triage"&&sess.pass===1)?sess.questions[i].estSecs:null;
   setFocusPhase();
   renderQuestion();renderNav();updateProg();renderQTimer();
+  saveProgress();
 }
 // triage navigation
 function firstCandidate(){for(let i=0;i<sess.questions.length;i++){const q=sess.questions[i];if(!sess.answers[q.id]&&!sess.parked.has(q.id))return i;}return 0;}
@@ -465,7 +529,7 @@ function selectOption(qid,L){
     sess.parked.delete(qid);sess.qLeft=null;
     advanceTriage();return;
   }
-  renderQuestion();renderNav();updateProg();
+  renderQuestion();renderNav();updateProg();saveProgress();
 }
 function renderNav(){
   const g=$("navGrid");g.innerHTML="";
@@ -492,7 +556,7 @@ function updateProg(){
 $("prevBtn").onclick=()=>{if(sess.idx>0)goTo(sess.idx-1);};
 $("nextBtn").onclick=()=>{if(sess.idx<sess.questions.length-1)goTo(sess.idx+1);};
 $("parkBtn").onclick=()=>parkCurrent();
-$("flagBtn").onclick=()=>{const q=sess.questions[sess.idx];sess.flags.has(q.id)?sess.flags.delete(q.id):sess.flags.add(q.id);renderQuestion();renderNav();};
+$("flagBtn").onclick=()=>{const q=sess.questions[sess.idx];sess.flags.has(q.id)?sess.flags.delete(q.id):sess.flags.add(q.id);renderQuestion();renderNav();saveProgress();};
 
 // ---------- finish / grade ----------
 function finishExam(auto){
@@ -519,11 +583,16 @@ function finishExam(auto){
   const total=sess.questions.length;
   if(sess.mode==="mock"){const prev=store.weekBest[sess.week];
     if(!prev||correct>prev.correct)store.weekBest[sess.week]={correct,total,timeUsed,date:new Date().toISOString()};}
+  // record full attempt so it can be reopened and reviewed question-by-question
+  store.history.unshift({mode:sess.mode,week:sess.week,date:new Date().toISOString(),
+    correct,total,timeUsed,answers:Object.assign({},sess.answers),qTime:Object.assign({},sess.qTime)});
+  store.history=store.history.slice(0,30);
+  store.inProgress=null;
   save(store);
   renderResults({correct,total,timeUsed,perCat,newFlags,auto});
 }
 function renderResults(r){
-  $("resTitle").textContent=(sess.mode==="triage"?"Week "+sess.week+" · time-management drill":"Week "+sess.week+" mock exam")+(r.auto?" · time expired":"");
+  $("resTitle").textContent=(sess.review?"Reviewing · ":"")+(sess.mode==="triage"?"Week "+sess.week+" · time-management drill":"Week "+sess.week+" mock exam")+(r.auto?" · time expired":"");
   $("scorePct").textContent=Math.round(100*r.correct/r.total);
   $("kScore").textContent=r.correct+"/"+r.total;
   $("kTime").textContent=fmt(r.timeUsed)+" / 40:00";
@@ -647,12 +716,39 @@ function renderDashboard(){
   const cp=$("catProgress");cp.innerHTML="";
   CATEGORIES.forEach(c=>{const s=store.categoryStats[c];const pct=s.seen?Math.round(100*s.correct/s.seen):0;cp.appendChild(catBar(c,s.correct,s.seen,pct));});
   $("attemptCount").textContent=store.attempts;
+  // resume card
+  const p=store.inProgress;
+  const rc=$("resumeCard");
+  if(p){rc.classList.remove("hidden");
+    const ansN=Object.keys(p.answers||{}).length;
+    $("resumeInfo").textContent="Week "+p.week+" "+(p.mode==="triage"?"drill":"mock")+" — "+ansN+" of "+byWeek(p.week).length+" answered, "+fmt(Math.max(0,p.timeLeft))+" left. Saved "+fmtDate(new Date(p.savedAt).toISOString())+".";
+  } else rc.classList.add("hidden");
+  // past attempts
+  const hl=$("historyList");hl.innerHTML="";
+  if(!store.history.length){hl.innerHTML='<p class="note">No completed attempts yet. Finish an exam or drill and it will appear here to review.</p>';}
+  else store.history.forEach((h,i)=>{
+    const pct=Math.round(100*h.correct/h.total);
+    const row=document.createElement("div");row.className="histrow";
+    row.innerHTML='<span class="sc">'+pct+'%</span>'+
+      '<div style="flex:1;min-width:150px"><div style="font-weight:600">Week '+h.week+' · '+(h.mode==="triage"?"drill":"mock exam")+'</div>'+
+      '<div class="meta">'+h.correct+'/'+h.total+' · '+fmt(h.timeUsed)+' used · '+fmtDate(h.date)+'</div></div>'+
+      '<button class="btn-ghost btn-sm">Review</button>';
+    row.querySelector("button").onclick=()=>reviewAttempt(h);
+    hl.appendChild(row);
+  });
 }
+$("resumeBtn").onclick=resumeExam;
+$("discardBtn").onclick=()=>{if(confirm("Discard the unfinished exam? Your answers so far will be lost.")){clearProgress();renderDashboard();}};
+$("exitBtn").onclick=()=>{
+  if(sess&&sess.timerId){clearInterval(sess.timerId);sess.timerId=null;}
+  if(sess&&(sess.mode==="mock"||sess.mode==="triage")){saveProgress();}
+  sess=null;renderDashboard();show("dashboard");
+};
 $("startFocus").onclick=startFocus;
 $("clearFlags").onclick=()=>{if(confirm("Clear all focused-study flags?")){store.flagged={};save(store);renderDashboard();}};
 $("resetAll").onclick=()=>{if(confirm("Erase ALL saved progress, scores and flags on this device?")){store=blankStore();save(store);renderDashboard();}};
 
-window.addEventListener("beforeunload",e=>{if(sess&&sess.timerId){e.preventDefault();e.returnValue="";}});
+window.addEventListener("beforeunload",e=>{if(sess&&sess.timerId){saveProgress();e.preventDefault();e.returnValue="";}});
 
 if(typeof QUESTIONS==="undefined"){document.body.innerHTML='<div class="wrap"><div class="card"><h2>Could not load questions.js</h2><p>Make sure <b>questions.js</b> is in the same folder as this file.</p></div></div>';}
 else{renderDashboard();show("dashboard");}
