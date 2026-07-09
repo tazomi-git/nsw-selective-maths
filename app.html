@@ -114,6 +114,15 @@
   .pill{font-size:12px;background:#eff6ff;color:var(--brand);border-radius:999px;padding:4px 10px;font-weight:700}
   .hidden{display:none}
   .note{font-size:13px;color:var(--muted)}
+  .concept{background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:16px}
+  .concept h3{margin:0 0 4px;font-size:16px;color:var(--brand-dark)}
+  .concept .principle{font-size:15px;margin:6px 0}
+  .concept .mh{font-weight:800;font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-top:8px}
+  .concept ol{margin:6px 0 0;padding-left:20px} .concept li{margin:4px 0;font-size:14.5px}
+  .concept .eg{margin-top:10px;background:#fff;border:1px dashed #93c5fd;border-radius:10px;padding:10px 12px;font-size:14px}
+  .concept .eg b{color:var(--brand-dark)}
+  details.methodDetails{margin-bottom:12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:8px 12px}
+  details.methodDetails summary{color:var(--brand);font-weight:700}
   @media(max-width:560px){.catrow .name{width:130px}}
 </style>
 </head>
@@ -149,7 +158,7 @@
         <span class="spacer"></span>
         <span id="flagCount" class="pill">0 flagged</span>
       </div>
-      <p class="note">Questions you answer incorrectly are automatically marked for focused study. Practise them here, untimed, until you get them right — a correct answer clears the flag.</p>
+      <p class="note">Questions you answer incorrectly are automatically marked for focused study. For each one you first see a <b>concept card</b> — the principle, the method steps and a worked example — then a “Now you try”. Practise untimed until you get it right; a correct answer clears the flag.</p>
       <div class="row">
         <button id="startFocus" class="btn-warn">Start focused study</button>
         <button id="clearFlags" class="btn-ghost btn-sm">Clear all flags</button>
@@ -194,6 +203,7 @@
           <button id="flagBtn" class="btn-ghost btn-sm">⚑ Flag</button>
         </div>
       </div>
+      <div id="conceptCard" class="concept hidden"></div>
       <div id="qText" class="qtext"></div>
       <div id="optList"></div>
       <div class="foot">
@@ -250,6 +260,7 @@
 </div>
 
 <script src="questions.js"></script>
+<script src="concepts.js"></script>
 <script>
 "use strict";
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
@@ -275,6 +286,17 @@ function byWeek(w){return QUESTIONS.filter(q=>q.week===w);}
 function qById(id){return QUESTIONS.find(q=>q.id===id);}
 function fmt(sec){const m=Math.floor(sec/60),s=sec%60;return m+":"+String(s).padStart(2,"0");}
 function activeFlags(){return Object.keys(store.flagged).filter(id=>store.flagged[id]&&!store.flagged[id].resolved);}
+function conceptFor(q){const k=(typeof TOPIC_CONCEPT!=="undefined")?TOPIC_CONCEPT[q.topic]:null;return (k&&typeof CONCEPTS!=="undefined"&&CONCEPTS[k])?{key:k,c:CONCEPTS[k]}:null;}
+function conceptHTML(c){
+  return '<h3>'+esc(c.title)+'</h3><div class="principle">'+esc(c.principle)+'</div>'+
+    '<div class="mh">Method</div><ol>'+c.steps.map(s=>'<li>'+esc(s)+'</li>').join("")+'</ol>'+
+    '<div class="eg"><b>Example.</b> '+esc(c.example)+'</div>';
+}
+function setFocusPhase(){
+  if(sess.mode!=="focus"){sess.phase="try";return;}
+  const q=sess.questions[sess.idx];const cf=conceptFor(q);
+  sess.phase=(cf&&!sess.learned.has(cf.key)&&!sess.answers[q.id])?"learn":"try";
+}
 
 // ---------- session ----------
 let sess=null;
@@ -297,6 +319,7 @@ function startFocus(){
   beginSession(false);
 }
 function beginSession(timed){
+  sess.learned=new Set();sess.phase="try";
   $("totalCount").textContent=sess.questions.length;
   $("qTotal").textContent=sess.questions.length;
   $("timer").style.display=timed?"":"none";
@@ -306,6 +329,7 @@ function beginSession(timed){
   if(sess.mode==="triage"&&sess.pass===1)sess.qLeft=sess.questions[sess.idx].estSecs;
   if(timed){sess.timeLeft=TOTAL_TIME;tick();
     sess.timerId=setInterval(onTick,1000);}
+  setFocusPhase();
   renderQuestion();renderNav();updateProg();renderQTimer();
   show("exam");
 }
@@ -340,6 +364,7 @@ function goTo(i){
   accumulate();
   sess.idx=i;sess.curStart=Date.now();
   sess.qLeft=(sess.mode==="triage"&&sess.pass===1)?sess.questions[i].estSecs:null;
+  setFocusPhase();
   renderQuestion();renderNav();updateProg();renderQTimer();
 }
 // triage navigation
@@ -372,8 +397,29 @@ function renderQuestion(){
   const dEl=$("qDiff");dEl.className="diff "+q.difficulty;dEl.textContent=DIFF_NAME[q.difficulty];
   const prefix=sess.mode==="focus"?"Practice · ":(sess.mode==="triage"?"Drill · ":"");
   $("qId").textContent=prefix+"Q"+(sess.idx+1);
+  const cf=sess.mode==="focus"?conceptFor(q):null;
+  const cc=$("conceptCard");
+  const foot=document.querySelector("#view-exam .foot");
+  if(sess.mode==="focus"&&sess.phase==="learn"&&cf){
+    $("qId").textContent="📘 Learn the method";
+    cc.classList.remove("hidden");
+    cc.innerHTML=conceptHTML(cf.c)+'<div style="margin-top:14px"><button id="tryBtn" class="btn-primary">Now you try →</button></div>';
+    $("tryBtn").onclick=()=>{sess.learned.add(cf.key);sess.phase="try";renderQuestion();};
+    $("qText").style.display="none";$("optList").style.display="none";
+    if(foot)foot.style.display="none";
+    setControls();return;
+  }
+  cc.classList.add("hidden");
+  $("qText").style.display="";$("optList").style.display="";
+  if(foot)foot.style.display="";
   $("qText").textContent=q.question;
   const list=$("optList");list.innerHTML="";
+  if(cf){
+    const d=document.createElement("details");d.className="methodDetails";
+    d.innerHTML='<summary>📘 Review the method</summary>';
+    const panel=document.createElement("div");panel.style.marginTop="8px";panel.innerHTML=conceptHTML(cf.c);
+    d.appendChild(panel);list.appendChild(d);
+  }
   const answered=sess.answers[q.id];
   const reveal=sess.mode==="focus"&&answered;
   LETTERS.forEach(L=>{
