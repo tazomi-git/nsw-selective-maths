@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NSW Selective Prep — Year 6 Mathematical Reasoning</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1d4ed8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="NSW Maths">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root{
+    --bg:#0f172a; --panel:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+    --brand:#1d4ed8; --brand-dark:#1e3a8a; --accent:#0ea5e9;
+    --ok:#16a34a; --ok-bg:#dcfce7; --bad:#dc2626; --bad-bg:#fee2e2;
+    --warn:#d97706; --flag:#f59e0b; --shadow:0 1px 3px rgba(15,23,42,.08),0 8px 24px rgba(15,23,42,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:linear-gradient(180deg,#eef2ff,#f8fafc 240px);min-height:100vh;line-height:1.5}
+  .wrap{max-width:920px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 80px calc(16px + env(safe-area-inset-left))}
+  header.top{display:flex;align-items:center;gap:12px;padding:6px 2px 18px}
+  .logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--accent));
+    display:grid;place-items:center;color:#fff;font-weight:800;font-size:20px;box-shadow:var(--shadow)}
+  header.top h1{font-size:19px;margin:0}
+  header.top p{margin:0;color:var(--muted);font-size:13px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+  h2{font-size:16px;margin:0 0 12px;letter-spacing:.2px}
+  .muted{color:var(--muted)}
+  .grid-weeks{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+  .weekcard{border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;background:#fff;transition:.15s}
+  .weekcard:hover{border-color:var(--brand);transform:translateY(-2px)}
+  .weekcard .wtitle{font-weight:700}
+  .weekcard .best{font-size:13px;color:var(--muted)}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:#eff6ff;color:var(--brand)}
+  .badge.done{background:var(--ok-bg);color:var(--ok)}
+  button{font:inherit;cursor:pointer;border:none;border-radius:10px;padding:10px 16px;font-weight:600;transition:.15s}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-primary:hover{background:var(--brand-dark)}
+  .btn-ghost{background:#f1f5f9;color:var(--ink)}
+  .btn-ghost:hover{background:#e2e8f0}
+  .btn-warn{background:var(--flag);color:#3b2600}
+  .btn-danger{background:#fff;color:var(--bad);border:1px solid var(--bad)}
+  .btn-sm{padding:7px 12px;font-size:13px;border-radius:9px}
+  .catrow{display:flex;align-items:center;gap:12px;margin:10px 0}
+  .catrow .name{width:210px;font-size:13px;font-weight:600}
+  .bar{flex:1;height:12px;background:#eef2f7;border-radius:999px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--brand));border-radius:999px;transition:width .5s}
+  .catrow .pct{width:96px;text-align:right;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  /* exam */
+  .exambar{position:sticky;top:env(safe-area-inset-top);z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);
+    border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 16px;margin-bottom:16px;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:22px;padding:6px 12px;border-radius:10px;background:#eff6ff;color:var(--brand)}
+  .timer.warn{background:#fef3c7;color:#b45309}
+  .timer.crit{background:var(--bad-bg);color:var(--bad);animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.55}}
+  .progress-mini{flex:1;min-width:140px}
+  .progress-mini .bar{height:8px}
+  .qcount{font-size:13px;color:var(--muted)}
+  .navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:6px;margin-top:6px}
+  .navgrid button{padding:0;height:34px;border-radius:8px;background:#f1f5f9;color:var(--ink);font-size:12px;font-weight:700;border:1px solid transparent}
+  .navgrid button.answered{background:#dbeafe;color:var(--brand)}
+  .navgrid button.current{outline:2px solid var(--brand);outline-offset:1px}
+  .navgrid button.flagged{border-color:var(--flag);box-shadow:inset 0 -3px 0 var(--flag)}
+  .qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+  .qcat{font-size:12px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.4px}
+  .qtext{font-size:16px;white-space:pre-wrap;margin:8px 0 16px}
+  .opt{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:.12s;background:#fff}
+  .opt:hover{border-color:var(--brand);background:#f8faff}
+  .opt.sel{border-color:var(--brand);background:#eff6ff}
+  .opt .lab{width:26px;height:26px;flex:none;border-radius:50%;background:#f1f5f9;display:grid;place-items:center;font-weight:800;font-size:13px}
+  .opt.sel .lab{background:var(--brand);color:#fff}
+  .opt.correct{border-color:var(--ok);background:var(--ok-bg)}
+  .opt.correct .lab{background:var(--ok);color:#fff}
+  .opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+  .opt.wrong .lab{background:var(--bad);color:#fff}
+  .opt .otext{flex:1;white-space:pre-wrap}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .expl{margin-top:12px;padding:14px 16px;border-radius:12px;background:#f8fafc;border:1px solid var(--line);font-size:14.5px;white-space:pre-wrap}
+  .expl b{color:var(--brand-dark)}
+  .scorebig{font-size:44px;font-weight:800;line-height:1}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:6px 0 4px}
+  .kpi{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:14px}
+  .kpi .v{font-size:24px;font-weight:800}
+  .kpi .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .review-item{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+  .review-item.correct{border-left:5px solid var(--ok)}
+  .review-item.wrong{border-left:5px solid var(--bad)}
+  .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .tag.ok{background:var(--ok-bg);color:var(--ok)} .tag.no{background:var(--bad-bg);color:var(--bad)}
+  details summary{cursor:pointer;color:var(--brand);font-weight:600;font-size:14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .spacer{flex:1}
+  .pill{font-size:12px;background:#eff6ff;color:var(--brand);border-radius:999px;padding:4px 10px;font-weight:700}
+  .hidden{display:none}
+  .note{font-size:13px;color:var(--muted)}
+  a.link{color:var(--brand);cursor:pointer;text-decoration:underline}
+  @media(max-width:560px){.catrow .name{width:130px}.wrap{padding-top:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">∑</div>
+    <div>
+      <h1>NSW Selective Prep · Year&nbsp;6 Mathematical Reasoning</h1>
+      <p>Full mock format — 35 questions in 40 minutes · Weeks 1–4</p>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <section id="view-dashboard">
+    <div class="card">
+      <h2>Weekly mock exams</h2>
+      <p class="note">Each paper mirrors the real test: 35 multiple-choice questions (A–E), 40-minute countdown, balanced across the five strands. Your best result per week is saved on this device.</p>
+      <div id="weekGrid" class="grid-weeks"></div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h2 style="margin:0">Focused study</h2>
+        <span class="spacer"></span>
+        <span id="flagCount" class="pill">0 flagged</span>
+      </div>
+      <p class="note">Questions you answer incorrectly are automatically marked for focused study. Practise them here, untimed, until you get them right — a correct answer clears the flag.</p>
+      <div class="row">
+        <button id="startFocus" class="btn-warn">Start focused study</button>
+        <button id="clearFlags" class="btn-ghost btn-sm">Clear all flags</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Progress by category</h2>
+      <p class="note">Cumulative accuracy across every question you have answered, per NSW strand.</p>
+      <div id="catProgress"></div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <h2 style="margin:0 0 4px">Overall</h2>
+          <span class="note">Attempts completed: <b id="attemptCount">0</b></span>
+        </div>
+        <span class="spacer"></span>
+        <button id="resetAll" class="btn-danger btn-sm">Reset all progress</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXAM -->
+  <section id="view-exam" class="hidden">
+    <div class="exambar">
+      <div id="timer" class="timer">40:00</div>
+      <div class="progress-mini"><div class="bar"><i id="examProg" style="width:0%"></i></div></div>
+      <div class="qcount"><span id="answeredCount">0</span>/<span id="totalCount">35</span> answered</div>
+      <span class="spacer"></span>
+      <button id="submitBtn" class="btn-primary btn-sm">Submit paper</button>
+    </div>
+    <div class="card">
+      <div class="qhead">
+        <span class="qcat" id="qCat"></span>
+        <div class="row">
+          <span class="note" id="qId"></span>
+          <button id="flagBtn" class="btn-ghost btn-sm">⚑ Flag</button>
+        </div>
+      </div>
+      <div id="qText" class="qtext"></div>
+      <div id="optList"></div>
+      <div class="foot">
+        <button id="prevBtn" class="btn-ghost btn-sm">← Previous</button>
+        <span class="note">Question <b id="qNum">1</b> of <b id="qTotal">35</b></span>
+        <button id="nextBtn" class="btn-ghost btn-sm">Next →</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Question navigator</h2>
+      <div id="navGrid" class="navgrid"></div>
+      <p class="note" style="margin-top:10px">Blue = answered · amber underline = flagged · outline = current.</p>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="view-results" class="hidden">
+    <div class="card">
+      <div class="row" style="align-items:flex-end">
+        <div>
+          <div class="note" id="resTitle">Results</div>
+          <div class="scorebig"><span id="scorePct">0</span>%</div>
+        </div>
+        <span class="spacer"></span>
+        <div class="kpis" style="min-width:280px">
+          <div class="kpi"><div class="v" id="kScore">0/35</div><div class="l">Score</div></div>
+          <div class="kpi"><div class="v" id="kTime">—</div><div class="l">Time used</div></div>
+          <div class="kpi"><div class="v" id="kFlag">0</div><div class="l">New flags</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>By category</h2>
+      <div id="resCats"></div>
+    </div>
+    <div class="card">
+      <div class="row">
+        <h2 style="margin:0">Review &amp; explanations</h2>
+        <span class="spacer"></span>
+        <label class="note"><input type="checkbox" id="onlyWrong"> Show only incorrect</label>
+      </div>
+      <div id="reviewList" style="margin-top:12px"></div>
+    </div>
+    <div class="row">
+      <button id="backHome" class="btn-primary">← Back to dashboard</button>
+      <button id="retryWrong" class="btn-warn">Practise the ones I missed</button>
+    </div>
+  </section>
+</div>
+
+<script src="questions.js"></script>
+<script>
+"use strict";
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
+const KEY="nsw_selective_progress_v1";
+const TOTAL_TIME=40*60; // seconds for a full mock
+const $=id=>document.getElementById(id);
+const views={dashboard:$("view-dashboard"),exam:$("view-exam"),results:$("view-results")};
+function show(v){for(const k in views)views[k].classList.toggle("hidden",k!==v);window.scrollTo(0,0);}
+
+// ---------- persistence ----------
+function blankStore(){
+  const cs={}; CATEGORIES.forEach(c=>cs[c]={correct:0,seen:0});
+  return {version:1,categoryStats:cs,weekBest:{},attempts:0,flagged:{}};
+}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.version)return s;}catch(e){}return blankStore();}
+function save(s){localStorage.setItem(KEY,JSON.stringify(s));}
+let store=load();
+
+// ---------- helpers ----------
+const LETTERS=["A","B","C","D","E"];
+function byWeek(w){return QUESTIONS.filter(q=>q.week===w);}
+function qById(id){return QUESTIONS.find(q=>q.id===id);}
+function fmt(sec){const m=Math.floor(sec/60),s=sec%60;return m+":"+String(s).padStart(2,"0");}
+function activeFlags(){return Object.keys(store.flagged).filter(id=>store.flagged[id]&&!store.flagged[id].resolved);}
+
+// ---------- session state ----------
+let sess=null; // {mode, week, questions[], answers{qid:letter}, flags:Set, idx, timeLeft, timerId, endsAt}
+
+function startExam(week){
+  sess={mode:"mock",week,questions:byWeek(week),answers:{},flags:new Set(),idx:0,
+        timeLeft:TOTAL_TIME,timerId:null};
+  beginSession(true);
+}
+function startFocus(){
+  const ids=activeFlags();
+  if(!ids.length){alert("No questions are flagged yet. Finish a mock exam first — anything you miss lands here.");return;}
+  const qs=ids.map(qById).filter(Boolean);
+  sess={mode:"focus",week:null,questions:qs,answers:{},flags:new Set(),idx:0,timeLeft:null,timerId:null};
+  beginSession(false);
+}
+function beginSession(timed){
+  $("totalCount").textContent=sess.questions.length;
+  $("qTotal").textContent=sess.questions.length;
+  const tEl=$("timer");
+  if(timed){
+    tEl.style.display="";
+    sess.timeLeft=TOTAL_TIME; tick();
+    sess.timerId=setInterval(()=>{sess.timeLeft--;tick();if(sess.timeLeft<=0){clearInterval(sess.timerId);submitExam(true);}},1000);
+  }else{
+    tEl.style.display="none";
+  }
+  $("submitBtn").textContent=sess.mode==="focus"?"Finish practice":"Submit paper";
+  renderQuestion();renderNav();updateProg();
+  show("exam");
+}
+function tick(){
+  const t=$("timer");t.textContent=fmt(Math.max(0,sess.timeLeft));
+  t.classList.toggle("warn",sess.timeLeft<=300&&sess.timeLeft>60);
+  t.classList.toggle("crit",sess.timeLeft<=60);
+}
+function renderQuestion(){
+  const q=sess.questions[sess.idx];
+  $("qCat").textContent=q.category;
+  $("qId").textContent=(sess.mode==="focus"?"Practice · ":"")+"Q"+(sess.idx+1);
+  $("qText").textContent=q.question;
+  const list=$("optList");list.innerHTML="";
+  const answered=sess.answers[q.id];
+  const reveal=sess.mode==="focus"&&answered;   // focus mode gives instant feedback
+  LETTERS.forEach(L=>{
+    const div=document.createElement("div");
+    div.className="opt"+(answered===L?" sel":"");
+    if(reveal){
+      if(L===q.answer)div.className="opt correct";
+      else if(answered===L)div.className="opt wrong";
+    }
+    div.innerHTML='<div class="lab">'+L+'</div><div class="otext"></div>';
+    div.querySelector(".otext").textContent=q.options[L];
+    div.onclick=()=>{ if(sess.mode==="focus"&&sess.answers[q.id])return; selectOption(q.id,L); };
+    list.appendChild(div);
+  });
+  if(reveal){
+    const e=document.createElement("div");e.className="expl";
+    e.innerHTML="<b>Correct answer: "+q.answer+".</b> ";
+    e.appendChild(document.createTextNode(q.explanation));
+    list.appendChild(e);
+  }
+  $("qNum").textContent=sess.idx+1;
+  $("flagBtn").textContent=sess.flags.has(q.id)?"⚑ Flagged":"⚑ Flag";
+  $("prevBtn").disabled=sess.idx===0;
+  $("nextBtn").disabled=sess.idx===sess.questions.length-1;
+}
+function selectOption(qid,L){
+  sess.answers[qid]=L;
+  if(sess.mode==="focus"){
+    // instant feedback + update flags/stats immediately
+    const q=qById(qid);const correct=L===q.answer;
+    store.categoryStats[q.category].seen++;
+    if(correct){store.categoryStats[q.category].correct++;
+      if(store.flagged[qid])store.flagged[qid].resolved=true;}
+    else{store.flagged[qid]=store.flagged[qid]||{wrong:0};store.flagged[qid].wrong++;store.flagged[qid].resolved=false;}
+    save(store);
+  }
+  renderQuestion();renderNav();updateProg();
+}
+function renderNav(){
+  const g=$("navGrid");g.innerHTML="";
+  sess.questions.forEach((q,i)=>{
+    const b=document.createElement("button");
+    b.textContent=i+1;
+    if(sess.answers[q.id])b.classList.add("answered");
+    if(sess.flags.has(q.id))b.classList.add("flagged");
+    if(i===sess.idx)b.classList.add("current");
+    b.onclick=()=>{sess.idx=i;renderQuestion();renderNav();};
+    g.appendChild(b);
+  });
+}
+function updateProg(){
+  const n=Object.keys(sess.answers).length;
+  $("answeredCount").textContent=n;
+  $("examProg").style.width=(100*n/sess.questions.length)+"%";
+}
+$("prevBtn").onclick=()=>{if(sess.idx>0){sess.idx--;renderQuestion();renderNav();}};
+$("nextBtn").onclick=()=>{if(sess.idx<sess.questions.length-1){sess.idx++;renderQuestion();renderNav();}};
+$("flagBtn").onclick=()=>{const q=sess.questions[sess.idx];sess.flags.has(q.id)?sess.flags.delete(q.id):sess.flags.add(q.id);renderQuestion();renderNav();};
+
+// ---------- submit / results ----------
+function submitExam(auto){
+  if(sess.mode==="focus"){ // finishing practice just returns home
+    if(sess.timerId)clearInterval(sess.timerId);
+    renderDashboard();show("dashboard");return;
+  }
+  const answered=Object.keys(sess.answers).length;
+  if(!auto&&answered<sess.questions.length){
+    if(!confirm("You have answered "+answered+" of "+sess.questions.length+" questions. Submit anyway?"))return;
+  }
+  if(sess.timerId)clearInterval(sess.timerId);
+  const timeUsed=TOTAL_TIME-Math.max(0,sess.timeLeft);
+  // grade
+  let correct=0;const perCat={};let newFlags=0;
+  CATEGORIES.forEach(c=>perCat[c]={correct:0,total:0});
+  sess.questions.forEach(q=>{
+    const a=sess.answers[q.id];const ok=a===q.answer;
+    perCat[q.category].total++;
+    store.categoryStats[q.category].seen++;
+    if(ok){correct++;perCat[q.category].correct++;store.categoryStats[q.category].correct++;
+      if(store.flagged[q.id])store.flagged[q.id].resolved=true;}
+    else{ // wrong or blank -> flag for study
+      store.flagged[q.id]=store.flagged[q.id]||{wrong:0};
+      if(store.flagged[q.id].resolved!==false)newFlags++;
+      store.flagged[q.id].wrong++;store.flagged[q.id].resolved=false;}
+  });
+  store.attempts++;
+  const total=sess.questions.length;
+  const prev=store.weekBest[sess.week];
+  if(!prev||correct>prev.correct)store.weekBest[sess.week]={correct,total,timeUsed,date:new Date().toISOString()};
+  save(store);
+  renderResults({correct,total,timeUsed,perCat,newFlags,auto});
+}
+function renderResults(r){
+  $("resTitle").textContent="Week "+sess.week+" mock exam"+(r.auto?" · time expired":"");
+  $("scorePct").textContent=Math.round(100*r.correct/r.total);
+  $("kScore").textContent=r.correct+"/"+r.total;
+  $("kTime").textContent=fmt(r.timeUsed)+" / 40:00";
+  $("kFlag").textContent=r.newFlags;
+  // category bars
+  const cc=$("resCats");cc.innerHTML="";
+  CATEGORIES.forEach(c=>{
+    const d=r.perCat[c];const pct=d.total?Math.round(100*d.correct/d.total):0;
+    cc.appendChild(catBar(c,d.correct,d.total,pct));
+  });
+  // review
+  renderReview();
+  show("results");
+}
+function renderReview(){
+  const only=$("onlyWrong").checked;
+  const wrap=$("reviewList");wrap.innerHTML="";
+  sess.questions.forEach((q,i)=>{
+    const a=sess.answers[q.id];const ok=a===q.answer;
+    if(only&&ok)return;
+    const item=document.createElement("div");
+    item.className="review-item "+(ok?"correct":"wrong");
+    const yourTxt=a?(a+". "+q.options[a]):"— not answered";
+    item.innerHTML=
+      '<div class="row"><span class="qcat">'+q.category+'</span>'+
+      '<span class="spacer"></span>'+
+      '<span class="tag '+(ok?"ok":"no")+'">'+(ok?"Correct":"Review")+'</span></div>'+
+      '<div class="qtext" style="font-size:15px"></div>'+
+      '<div class="note">Your answer: <b>'+esc(yourTxt)+'</b>'+(ok?"":' · Correct: <b>'+q.answer+". "+esc(q.options[q.answer])+'</b>')+'</div>'+
+      '<details style="margin-top:8px"><summary>Show full explanation</summary><div class="expl"></div></details>';
+    item.querySelector(".qtext").textContent="Q"+(i+1)+". "+q.question;
+    const e=item.querySelector(".expl");
+    e.innerHTML="<b>Answer "+q.answer+".</b> ";e.appendChild(document.createTextNode(q.explanation));
+    wrap.appendChild(item);
+  });
+  if(!wrap.children.length)wrap.innerHTML='<p class="note">Nothing to show — every question in this filter is correct. 🎉</p>';
+}
+function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+$("onlyWrong").onchange=renderReview;
+$("submitBtn").onclick=()=>submitExam(false);
+$("backHome").onclick=()=>{renderDashboard();show("dashboard");};
+$("retryWrong").onclick=()=>{renderDashboard();startFocus();};
+
+// ---------- dashboard ----------
+function catBar(name,correct,total,pct){
+  const row=document.createElement("div");row.className="catrow";
+  row.innerHTML='<div class="name"></div><div class="bar"><i style="width:'+pct+'%"></i></div>'+
+    '<div class="pct">'+pct+'% <span style="opacity:.6">('+correct+'/'+total+')</span></div>';
+  row.querySelector(".name").textContent=name;
+  return row;
+}
+function renderDashboard(){
+  // week cards
+  const g=$("weekGrid");g.innerHTML="";
+  [1,2,3,4].forEach(w=>{
+    const best=store.weekBest[w];
+    const card=document.createElement("div");card.className="weekcard";
+    const done=!!best;
+    const pct=done?Math.round(100*best.correct/best.total):null;
+    card.innerHTML='<div class="row"><span class="wtitle">Week '+w+'</span>'+
+      '<span class="spacer"></span><span class="badge '+(done?"done":"")+'">'+(done?"Best "+pct+"%":"Not attempted")+'</span></div>'+
+      '<div class="best">'+(done?("Score "+best.correct+"/"+best.total+" · "+fmt(best.timeUsed)+" used"):"35 questions · 40 min")+'</div>'+
+      '<button class="btn-primary btn-sm" data-w="'+w+'">'+(done?"Retake":"Start exam")+'</button>';
+    card.querySelector("button").onclick=()=>startExam(w);
+    g.appendChild(card);
+  });
+  // flags
+  const nf=activeFlags().length;
+  $("flagCount").textContent=nf+" flagged";
+  $("startFocus").disabled=nf===0;
+  // category progress
+  const cp=$("catProgress");cp.innerHTML="";
+  CATEGORIES.forEach(c=>{
+    const s=store.categoryStats[c];const pct=s.seen?Math.round(100*s.correct/s.seen):0;
+    cp.appendChild(catBar(c,s.correct,s.seen,pct));
+  });
+  $("attemptCount").textContent=store.attempts;
+}
+$("startFocus").onclick=startFocus;
+$("clearFlags").onclick=()=>{if(confirm("Clear all focused-study flags?")){store.flagged={};save(store);renderDashboard();}};
+$("resetAll").onclick=()=>{if(confirm("Erase ALL saved progress, scores and flags on this device?")){store=blankStore();save(store);renderDashboard();}};
+
+// guard: warn on leaving mid-exam
+window.addEventListener("beforeunload",e=>{if(sess&&sess.mode==="mock"&&sess.timerId){e.preventDefault();e.returnValue="";}});
+
+// init
+if(typeof QUESTIONS==="undefined"){document.body.innerHTML='<div class="wrap"><div class="card"><h2>Could not load questions.js</h2><p>Make sure <b>questions.js</b> is in the same folder as this file.</p></div></div>';}
+else{renderDashboard();show("dashboard");}
+</script>
+</body>
+</html>

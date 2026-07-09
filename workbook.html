@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NSW Selective Prep — Printable Workbook (Year 6 Mathematical Reasoning)</title>
+<style>
+  :root{--ink:#111827;--muted:#6b7280;--line:#d1d5db;--brand:#1d4ed8;--soft:#f3f4f6}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Georgia,"Times New Roman",serif;color:var(--ink);line-height:1.5}
+  .sheet{max-width:800px;margin:0 auto;padding:32px 28px}
+  .toolbar{position:sticky;top:0;background:#111827;color:#fff;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:-apple-system,Segoe UI,Roboto,sans-serif}
+  .toolbar b{font-size:14px}.toolbar .sp{flex:1}
+  .toolbar button{font:inherit;font-size:13px;font-weight:600;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;background:#3b82f6;color:#fff}
+  .toolbar button.sec{background:#374151}
+  h1{font-size:22px;margin:0 0 2px;font-family:-apple-system,Segoe UI,Roboto,sans-serif}
+  .sub{color:var(--muted);font-size:13px;font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin-bottom:18px}
+  .paper-head{border:2px solid var(--ink);border-radius:8px;padding:14px 16px;margin:18px 0 22px;font-family:-apple-system,Segoe UI,Roboto,sans-serif}
+  .paper-head h2{margin:0 0 6px;font-size:19px}
+  .paper-head .meta{font-size:13px;color:var(--muted)}
+  .paper-head .instr{font-size:12.5px;margin-top:8px;color:#374151}
+  .q{margin:0 0 16px;page-break-inside:avoid}
+  .q .n{font-weight:700}
+  .q .cat{font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--brand);font-weight:700}
+  .q .body{white-space:pre-wrap;margin:2px 0 8px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:2px 24px;font-size:14.5px}
+  .opts .o{padding:2px 0;white-space:pre-wrap}
+  .opts .o b{display:inline-block;width:20px}
+  .mono{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;white-space:pre;font-size:12.5px}
+  .answergrid{font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:13px;border-collapse:collapse;width:100%}
+  .answergrid td,.answergrid th{border:1px solid var(--line);padding:5px 8px;text-align:center}
+  .answergrid th{background:var(--soft)}
+  .ans{page-break-inside:avoid;margin:0 0 14px;font-family:-apple-system,Segoe UI,Roboto,sans-serif}
+  .ans .h{font-weight:700}
+  .ans .key{color:var(--brand);font-weight:700}
+  .ans .ex{font-size:13.5px;color:#374151;margin-top:3px;white-space:pre-wrap}
+  .pagebreak{page-break-before:always}
+  hr{border:none;border-top:1px solid var(--line);margin:22px 0}
+  @media print{.toolbar{display:none}.sheet{max-width:none;padding:0 6mm}body{font-size:12pt}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <b>NSW Selective Printable Workbook</b>
+  <span class="sp"></span>
+  <button onclick="window.print()">🖨 Print / Save as PDF</button>
+  <button class="sec" onclick="toggleKey()">Toggle answer key</button>
+</div>
+<div class="sheet">
+  <h1>Year 6 Mathematical Reasoning — Practice Workbook</h1>
+  <div class="sub">NSW Selective High School Placement style · Weeks 1–4 · 35 questions per paper · 40 minutes each · answers &amp; worked solutions at the back.</div>
+  <div id="papers"></div>
+  <div id="answers"></div>
+</div>
+<script src="questions.js"></script>
+<script>
+const LETTERS=["A","B","C","D","E"];
+function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+function byWeek(w){return QUESTIONS.filter(q=>q.week===w);}
+const papers=document.getElementById("papers");
+[1,2,3,4].forEach((w,wi)=>{
+  const sec=document.createElement("section");
+  if(wi>0)sec.className="pagebreak";
+  let html='<div class="paper-head"><h2>Week '+w+' — Mock Exam</h2>'+
+    '<div class="meta">Mathematical Reasoning · 35 questions · Time allowed: 40 minutes</div>'+
+    '<div class="instr">Choose the ONE best answer (A–E) for each question. Marks are not deducted for wrong answers, so attempt every question. Use the answer grid or circle your choice.</div></div>';
+  byWeek(w).forEach((q,i)=>{
+    html+='<div class="q"><span class="cat">'+esc(q.category)+'</span><br>'+
+      '<span class="n">'+(i+1)+'.</span> <span class="body">'+esc(q.question)+'</span>'+
+      '<div class="opts">'+LETTERS.map(L=>'<div class="o"><b>'+L+'.</b>'+esc(q.options[L])+'</div>').join("")+'</div></div>';
+  });
+  sec.innerHTML=html;
+  papers.appendChild(sec);
+});
+// answer key + explanations
+const ans=document.getElementById("answers");
+function buildKey(){
+  let html='<div class="pagebreak"></div><h1>Answer Key &amp; Worked Solutions</h1><div class="sub">Keep this section separate from the student during timed practice.</div>';
+  [1,2,3,4].forEach(w=>{
+    const qs=byWeek(w);
+    // quick grid
+    html+='<h2 style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;margin-top:18px">Week '+w+' — quick answers</h2><table class="answergrid"><tr><th>Q</th>'+qs.map((q,i)=>'<td>'+(i+1)+'</td>').join("")+'</tr><tr><th>Ans</th>'+qs.map(q=>'<td><b>'+q.answer+'</b></td>').join("")+'</tr></table>';
+  });
+  [1,2,3,4].forEach(w=>{
+    html+='<div class="pagebreak"></div><h2 style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:17px">Week '+w+' — full explanations</h2>';
+    byWeek(w).forEach((q,i)=>{
+      html+='<div class="ans"><div class="h">'+(i+1)+'. <span class="key">Answer: '+q.answer+'</span> <span style="color:#6b7280;font-weight:400">('+esc(q.category)+')</span></div>'+
+        '<div class="ex">'+esc(q.explanation)+'</div></div>';
+    });
+  });
+  return html;
+}
+let keyOn=true;
+function toggleKey(){keyOn=!keyOn;ans.style.display=keyOn?"":"none";}
+ans.innerHTML=buildKey();
+if(typeof QUESTIONS==="undefined")document.body.innerHTML="<p style='padding:40px'>Could not load questions.js — keep it in the same folder.</p>";
+</script>
+</body>
+</html>
