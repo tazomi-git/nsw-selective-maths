@@ -38,11 +38,14 @@
   .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:#eff6ff;color:var(--brand)}
   .badge.done{background:var(--ok-bg);color:var(--ok)}
   button{font:inherit;cursor:pointer;border:none;border-radius:10px;padding:10px 16px;font-weight:600;transition:.15s}
+  button:disabled{opacity:.45;cursor:default}
   .btn-primary{background:var(--brand);color:#fff}
   .btn-primary:hover{background:var(--brand-dark)}
   .btn-ghost{background:#f1f5f9;color:var(--ink)}
   .btn-ghost:hover{background:#e2e8f0}
   .btn-warn{background:var(--flag);color:#3b2600}
+  .btn-teal{background:#0d9488;color:#fff}
+  .btn-teal:hover{background:#0f766e}
   .btn-danger{background:#fff;color:var(--bad);border:1px solid var(--bad)}
   .btn-sm{padding:7px 12px;font-size:13px;border-radius:9px}
   .catrow{display:flex;align-items:center;gap:12px;margin:10px 0}
@@ -50,15 +53,19 @@
   .bar{flex:1;height:12px;background:#eef2f7;border-radius:999px;overflow:hidden}
   .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--brand));border-radius:999px;transition:width .5s}
   .catrow .pct{width:96px;text-align:right;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .diff{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.4px}
+  .diff.E{background:#dcfce7;color:#166534} .diff.M{background:#fef9c3;color:#854d0e} .diff.H{background:#fee2e2;color:#991b1b}
   /* exam */
   .exambar{position:sticky;top:env(safe-area-inset-top);z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);
     border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 16px;margin-bottom:16px;
-    display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   .timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:22px;padding:6px 12px;border-radius:10px;background:#eff6ff;color:var(--brand)}
   .timer.warn{background:#fef3c7;color:#b45309}
   .timer.crit{background:var(--bad-bg);color:var(--bad);animation:pulse 1s infinite}
-  @keyframes pulse{50%{opacity:.55}}
-  .progress-mini{flex:1;min-width:140px}
+  .qtimer{font-variant-numeric:tabular-nums;font-weight:800;font-size:16px;padding:6px 10px;border-radius:10px;background:#eef2ff;color:#3730a3}
+  .qtimer.warn{background:#fee2e2;color:#b91c1c;animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.5}}
+  .progress-mini{flex:1;min-width:120px}
   .progress-mini .bar{height:8px}
   .qcount{font-size:13px;color:var(--muted)}
   .navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:6px;margin-top:6px}
@@ -66,6 +73,8 @@
   .navgrid button.answered{background:#dbeafe;color:var(--brand)}
   .navgrid button.current{outline:2px solid var(--brand);outline-offset:1px}
   .navgrid button.flagged{border-color:var(--flag);box-shadow:inset 0 -3px 0 var(--flag)}
+  .navgrid button.parked{background:#fef3c7;color:#92400e;border-color:var(--flag)}
+  .banner{background:#ecfeff;border:1px solid #a5f3fc;color:#155e75;border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:14px}
   .qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
   .qcat{font-size:12px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.4px}
   .qtext{font-size:16px;white-space:pre-wrap;margin:8px 0 16px}
@@ -83,10 +92,17 @@
   .expl{margin-top:12px;padding:14px 16px;border-radius:12px;background:#f8fafc;border:1px solid var(--line);font-size:14.5px;white-space:pre-wrap}
   .expl b{color:var(--brand-dark)}
   .scorebig{font-size:44px;font-weight:800;line-height:1}
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:6px 0 4px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:6px 0 4px}
   .kpi{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:14px}
   .kpi .v{font-size:24px;font-weight:800}
   .kpi .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .dtable{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  .dtable th,.dtable td{border:1px solid var(--line);padding:6px 8px;text-align:center}
+  .dtable th{background:#f8fafc;font-weight:700}
+  .sink{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-left:4px solid var(--bad);border-radius:10px;padding:8px 12px;margin-bottom:8px;font-size:14px}
+  .sink .t{font-weight:800;color:var(--bad);font-variant-numeric:tabular-nums}
+  .coach{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 14px;font-size:14px;margin-top:12px}
+  .coach ul{margin:6px 0 0;padding-left:20px} .coach li{margin:3px 0}
   .review-item{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
   .review-item.correct{border-left:5px solid var(--ok)}
   .review-item.wrong{border-left:5px solid var(--bad)}
@@ -98,8 +114,7 @@
   .pill{font-size:12px;background:#eff6ff;color:var(--brand);border-radius:999px;padding:4px 10px;font-weight:700}
   .hidden{display:none}
   .note{font-size:13px;color:var(--muted)}
-  a.link{color:var(--brand);cursor:pointer;text-decoration:underline}
-  @media(max-width:560px){.catrow .name{width:130px}.wrap{padding-top:12px}}
+  @media(max-width:560px){.catrow .name{width:130px}}
 </style>
 </head>
 <body>
@@ -118,6 +133,14 @@
       <h2>Weekly mock exams</h2>
       <p class="note">Each paper mirrors the real test: 35 multiple-choice questions (A–E), 40-minute countdown, balanced across the five strands. Your best result per week is saved on this device.</p>
       <div id="weekGrid" class="grid-weeks"></div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h2 style="margin:0">⏱ Time-management drill</h2>
+      </div>
+      <p class="note">Trains exam pacing. Each question gets a per-question timer set by its difficulty — <span class="diff E">Easy</span> <span class="diff M">Medium</span> <span class="diff H">Hard</span>. Lock in the quick ones; when a timer runs out the question is <b>parked</b> so you keep moving, then you revisit parked questions in a second pass. Finishes with a full time report.</p>
+      <div id="triageGrid" class="grid-weeks"></div>
     </div>
 
     <div class="card">
@@ -155,15 +178,18 @@
   <section id="view-exam" class="hidden">
     <div class="exambar">
       <div id="timer" class="timer">40:00</div>
+      <div id="qTimer" class="qtimer hidden">45s</div>
       <div class="progress-mini"><div class="bar"><i id="examProg" style="width:0%"></i></div></div>
-      <div class="qcount"><span id="answeredCount">0</span>/<span id="totalCount">35</span> answered</div>
+      <div class="qcount"><span id="answeredCount">0</span>/<span id="totalCount">35</span></div>
       <span class="spacer"></span>
       <button id="submitBtn" class="btn-primary btn-sm">Submit paper</button>
     </div>
     <div class="card">
+      <div id="triageBanner" class="banner hidden"></div>
       <div class="qhead">
         <span class="qcat" id="qCat"></span>
         <div class="row">
+          <span id="qDiff" class="diff M">Medium</span>
           <span class="note" id="qId"></span>
           <button id="flagBtn" class="btn-ghost btn-sm">⚑ Flag</button>
         </div>
@@ -173,13 +199,14 @@
       <div class="foot">
         <button id="prevBtn" class="btn-ghost btn-sm">← Previous</button>
         <span class="note">Question <b id="qNum">1</b> of <b id="qTotal">35</b></span>
+        <button id="parkBtn" class="btn-warn btn-sm hidden">Park &amp; skip →</button>
         <button id="nextBtn" class="btn-ghost btn-sm">Next →</button>
       </div>
     </div>
     <div class="card">
       <h2>Question navigator</h2>
       <div id="navGrid" class="navgrid"></div>
-      <p class="note" style="margin-top:10px">Blue = answered · amber underline = flagged · outline = current.</p>
+      <p id="navLegend" class="note" style="margin-top:10px">Blue = answered · amber underline = flagged · outline = current.</p>
     </div>
   </section>
 
@@ -198,6 +225,10 @@
           <div class="kpi"><div class="v" id="kFlag">0</div><div class="l">New flags</div></div>
         </div>
       </div>
+    </div>
+    <div class="card" id="timeReportCard">
+      <h2>⏱ Time management</h2>
+      <div id="timeReport"></div>
     </div>
     <div class="card">
       <h2>By category</h2>
@@ -224,6 +255,7 @@
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
 const KEY="nsw_selective_progress_v1";
 const TOTAL_TIME=40*60; // seconds for a full mock
+const DIFF_NAME={E:"Easy",M:"Medium",H:"Hard"};
 const $=id=>document.getElementById(id);
 const views={dashboard:$("view-dashboard"),exam:$("view-exam"),results:$("view-results")};
 function show(v){for(const k in views)views[k].classList.toggle("hidden",k!==v);window.scrollTo(0,0);}
@@ -244,56 +276,110 @@ function qById(id){return QUESTIONS.find(q=>q.id===id);}
 function fmt(sec){const m=Math.floor(sec/60),s=sec%60;return m+":"+String(s).padStart(2,"0");}
 function activeFlags(){return Object.keys(store.flagged).filter(id=>store.flagged[id]&&!store.flagged[id].resolved);}
 
-// ---------- session state ----------
-let sess=null; // {mode, week, questions[], answers{qid:letter}, flags:Set, idx, timeLeft, timerId, endsAt}
+// ---------- session ----------
+let sess=null;
 
 function startExam(week){
-  sess={mode:"mock",week,questions:byWeek(week),answers:{},flags:new Set(),idx:0,
-        timeLeft:TOTAL_TIME,timerId:null};
+  sess={mode:"mock",week,questions:byWeek(week),answers:{},flags:new Set(),parked:new Set(),
+        idx:0,timeLeft:TOTAL_TIME,timerId:null,qTime:{},curStart:null,qLeft:null,pass:1};
+  beginSession(true);
+}
+function startTriage(week){
+  sess={mode:"triage",week,questions:byWeek(week),answers:{},flags:new Set(),parked:new Set(),
+        idx:0,timeLeft:TOTAL_TIME,timerId:null,qTime:{},curStart:null,qLeft:null,pass:1};
   beginSession(true);
 }
 function startFocus(){
   const ids=activeFlags();
   if(!ids.length){alert("No questions are flagged yet. Finish a mock exam first — anything you miss lands here.");return;}
-  const qs=ids.map(qById).filter(Boolean);
-  sess={mode:"focus",week:null,questions:qs,answers:{},flags:new Set(),idx:0,timeLeft:null,timerId:null};
+  sess={mode:"focus",week:null,questions:ids.map(qById).filter(Boolean),answers:{},flags:new Set(),parked:new Set(),
+        idx:0,timeLeft:null,timerId:null,qTime:{},curStart:null,qLeft:null,pass:1};
   beginSession(false);
 }
 function beginSession(timed){
   $("totalCount").textContent=sess.questions.length;
   $("qTotal").textContent=sess.questions.length;
-  const tEl=$("timer");
-  if(timed){
-    tEl.style.display="";
-    sess.timeLeft=TOTAL_TIME; tick();
-    sess.timerId=setInterval(()=>{sess.timeLeft--;tick();if(sess.timeLeft<=0){clearInterval(sess.timerId);submitExam(true);}},1000);
-  }else{
-    tEl.style.display="none";
-  }
-  $("submitBtn").textContent=sess.mode==="focus"?"Finish practice":"Submit paper";
-  renderQuestion();renderNav();updateProg();
+  $("timer").style.display=timed?"":"none";
+  $("submitBtn").textContent=sess.mode==="focus"?"Finish practice":(sess.mode==="triage"?"Finish drill":"Submit paper");
+  if(sess.mode==="triage"){sess.idx=firstCandidate();}
+  sess.curStart=Date.now();
+  if(sess.mode==="triage"&&sess.pass===1)sess.qLeft=sess.questions[sess.idx].estSecs;
+  if(timed){sess.timeLeft=TOTAL_TIME;tick();
+    sess.timerId=setInterval(onTick,1000);}
+  renderQuestion();renderNav();updateProg();renderQTimer();
   show("exam");
+}
+function onTick(){
+  sess.timeLeft--;tick();
+  if(sess.timeLeft<=0){finishExam(true);return;}
+  if(sess.mode==="triage"&&sess.pass===1&&sess.qLeft!=null){
+    sess.qLeft--;renderQTimer();
+    if(sess.qLeft<=0)parkCurrent();
+  }
 }
 function tick(){
   const t=$("timer");t.textContent=fmt(Math.max(0,sess.timeLeft));
   t.classList.toggle("warn",sess.timeLeft<=300&&sess.timeLeft>60);
   t.classList.toggle("crit",sess.timeLeft<=60);
 }
+function renderQTimer(){
+  const el=$("qTimer");
+  const on=sess.mode==="triage"&&sess.pass===1&&sess.qLeft!=null;
+  el.classList.toggle("hidden",!on);
+  if(on){el.textContent="⏱ "+sess.qLeft+"s";el.classList.toggle("warn",sess.qLeft<=10);}
+}
+// timing
+function accumulate(){
+  if(sess&&sess.curStart!=null){
+    const q=sess.questions[sess.idx];
+    sess.qTime[q.id]=(sess.qTime[q.id]||0)+(Date.now()-sess.curStart)/1000;
+    sess.curStart=Date.now();
+  }
+}
+function goTo(i){
+  accumulate();
+  sess.idx=i;sess.curStart=Date.now();
+  sess.qLeft=(sess.mode==="triage"&&sess.pass===1)?sess.questions[i].estSecs:null;
+  renderQuestion();renderNav();updateProg();renderQTimer();
+}
+// triage navigation
+function firstCandidate(){for(let i=0;i<sess.questions.length;i++){const q=sess.questions[i];if(!sess.answers[q.id]&&!sess.parked.has(q.id))return i;}return 0;}
+function nextCandidate(from){const n=sess.questions.length;for(let k=1;k<=n;k++){const i=(from+k)%n;const q=sess.questions[i];if(!sess.answers[q.id]&&!sess.parked.has(q.id))return i;}return -1;}
+function nextUnanswered(){const n=sess.questions.length;for(let i=0;i<n;i++){const q=sess.questions[i];if(!sess.answers[q.id])return i;}return -1;}
+function advanceTriage(){
+  const nx=nextCandidate(sess.idx);
+  if(nx<0)enterPass2();
+  else goTo(nx);
+}
+function parkCurrent(){
+  const q=sess.questions[sess.idx];
+  sess.parked.add(q.id);sess.qLeft=null;
+  advanceTriage();
+}
+function enterPass2(){
+  sess.pass=2;sess.qLeft=null;renderQTimer();
+  const ni=nextUnanswered();
+  const b=$("triageBanner");b.classList.remove("hidden");
+  if(ni<0){b.textContent="First pass complete — every question is answered. Review your time report next.";
+    finishExam(false);return;}
+  b.innerHTML="<b>Second pass.</b> Revisit the questions you parked or skipped — the per-question timer is off, use your remaining time wisely.";
+  goTo(ni);
+}
+
 function renderQuestion(){
   const q=sess.questions[sess.idx];
   $("qCat").textContent=q.category;
-  $("qId").textContent=(sess.mode==="focus"?"Practice · ":"")+"Q"+(sess.idx+1);
+  const dEl=$("qDiff");dEl.className="diff "+q.difficulty;dEl.textContent=DIFF_NAME[q.difficulty];
+  const prefix=sess.mode==="focus"?"Practice · ":(sess.mode==="triage"?"Drill · ":"");
+  $("qId").textContent=prefix+"Q"+(sess.idx+1);
   $("qText").textContent=q.question;
   const list=$("optList");list.innerHTML="";
   const answered=sess.answers[q.id];
-  const reveal=sess.mode==="focus"&&answered;   // focus mode gives instant feedback
+  const reveal=sess.mode==="focus"&&answered;
   LETTERS.forEach(L=>{
     const div=document.createElement("div");
     div.className="opt"+(answered===L?" sel":"");
-    if(reveal){
-      if(L===q.answer)div.className="opt correct";
-      else if(answered===L)div.className="opt wrong";
-    }
+    if(reveal){if(L===q.answer)div.className="opt correct";else if(answered===L)div.className="opt wrong";}
     div.innerHTML='<div class="lab">'+L+'</div><div class="otext"></div>';
     div.querySelector(".otext").textContent=q.options[L];
     div.onclick=()=>{ if(sess.mode==="focus"&&sess.answers[q.id])return; selectOption(q.id,L); };
@@ -307,103 +393,162 @@ function renderQuestion(){
   }
   $("qNum").textContent=sess.idx+1;
   $("flagBtn").textContent=sess.flags.has(q.id)?"⚑ Flagged":"⚑ Flag";
+  setControls();
+}
+function setControls(){
+  const t1=sess.mode==="triage"&&sess.pass===1;
+  $("flagBtn").style.display=sess.mode==="mock"?"":"none";
+  $("prevBtn").style.display=t1?"none":"";
+  $("nextBtn").style.display=t1?"none":"";
+  $("parkBtn").classList.toggle("hidden",!t1);
+  $("triageBanner").classList.toggle("hidden",!(sess.mode==="triage"&&sess.pass===2));
   $("prevBtn").disabled=sess.idx===0;
   $("nextBtn").disabled=sess.idx===sess.questions.length-1;
 }
 function selectOption(qid,L){
   sess.answers[qid]=L;
   if(sess.mode==="focus"){
-    // instant feedback + update flags/stats immediately
-    const q=qById(qid);const correct=L===q.answer;
+    const q=qById(qid);const ok=L===q.answer;
     store.categoryStats[q.category].seen++;
-    if(correct){store.categoryStats[q.category].correct++;
-      if(store.flagged[qid])store.flagged[qid].resolved=true;}
+    if(ok){store.categoryStats[q.category].correct++;if(store.flagged[qid])store.flagged[qid].resolved=true;}
     else{store.flagged[qid]=store.flagged[qid]||{wrong:0};store.flagged[qid].wrong++;store.flagged[qid].resolved=false;}
     save(store);
+    renderQuestion();renderNav();updateProg();return;
+  }
+  if(sess.mode==="triage"&&sess.pass===1){
+    sess.parked.delete(qid);sess.qLeft=null;
+    advanceTriage();return;
   }
   renderQuestion();renderNav();updateProg();
 }
 function renderNav(){
   const g=$("navGrid");g.innerHTML="";
+  const t1=sess.mode==="triage"&&sess.pass===1;
   sess.questions.forEach((q,i)=>{
     const b=document.createElement("button");
     b.textContent=i+1;
     if(sess.answers[q.id])b.classList.add("answered");
     if(sess.flags.has(q.id))b.classList.add("flagged");
+    if(sess.parked.has(q.id))b.classList.add("parked");
     if(i===sess.idx)b.classList.add("current");
-    b.onclick=()=>{sess.idx=i;renderQuestion();renderNav();};
+    if(t1)b.disabled=true; else b.onclick=()=>goTo(i);
     g.appendChild(b);
   });
+  $("navLegend").textContent = sess.mode==="triage"
+    ? "Blue = answered · amber = parked · outline = current. First pass advances automatically."
+    : "Blue = answered · amber underline = flagged · outline = current.";
 }
 function updateProg(){
   const n=Object.keys(sess.answers).length;
   $("answeredCount").textContent=n;
   $("examProg").style.width=(100*n/sess.questions.length)+"%";
 }
-$("prevBtn").onclick=()=>{if(sess.idx>0){sess.idx--;renderQuestion();renderNav();}};
-$("nextBtn").onclick=()=>{if(sess.idx<sess.questions.length-1){sess.idx++;renderQuestion();renderNav();}};
+$("prevBtn").onclick=()=>{if(sess.idx>0)goTo(sess.idx-1);};
+$("nextBtn").onclick=()=>{if(sess.idx<sess.questions.length-1)goTo(sess.idx+1);};
+$("parkBtn").onclick=()=>parkCurrent();
 $("flagBtn").onclick=()=>{const q=sess.questions[sess.idx];sess.flags.has(q.id)?sess.flags.delete(q.id):sess.flags.add(q.id);renderQuestion();renderNav();};
 
-// ---------- submit / results ----------
-function submitExam(auto){
-  if(sess.mode==="focus"){ // finishing practice just returns home
-    if(sess.timerId)clearInterval(sess.timerId);
-    renderDashboard();show("dashboard");return;
-  }
+// ---------- finish / grade ----------
+function finishExam(auto){
+  if(sess.mode==="focus"){if(sess.timerId)clearInterval(sess.timerId);renderDashboard();show("dashboard");return;}
   const answered=Object.keys(sess.answers).length;
   if(!auto&&answered<sess.questions.length){
-    if(!confirm("You have answered "+answered+" of "+sess.questions.length+" questions. Submit anyway?"))return;
+    if(!confirm("You have answered "+answered+" of "+sess.questions.length+" questions. Finish anyway?"))return;
   }
-  if(sess.timerId)clearInterval(sess.timerId);
+  accumulate();
+  if(sess.timerId)clearInterval(sess.timerId);sess.timerId=null;
   const timeUsed=TOTAL_TIME-Math.max(0,sess.timeLeft);
-  // grade
   let correct=0;const perCat={};let newFlags=0;
   CATEGORIES.forEach(c=>perCat[c]={correct:0,total:0});
   sess.questions.forEach(q=>{
     const a=sess.answers[q.id];const ok=a===q.answer;
-    perCat[q.category].total++;
-    store.categoryStats[q.category].seen++;
+    perCat[q.category].total++;store.categoryStats[q.category].seen++;
     if(ok){correct++;perCat[q.category].correct++;store.categoryStats[q.category].correct++;
       if(store.flagged[q.id])store.flagged[q.id].resolved=true;}
-    else{ // wrong or blank -> flag for study
-      store.flagged[q.id]=store.flagged[q.id]||{wrong:0};
+    else{store.flagged[q.id]=store.flagged[q.id]||{wrong:0};
       if(store.flagged[q.id].resolved!==false)newFlags++;
       store.flagged[q.id].wrong++;store.flagged[q.id].resolved=false;}
   });
   store.attempts++;
   const total=sess.questions.length;
-  const prev=store.weekBest[sess.week];
-  if(!prev||correct>prev.correct)store.weekBest[sess.week]={correct,total,timeUsed,date:new Date().toISOString()};
+  if(sess.mode==="mock"){const prev=store.weekBest[sess.week];
+    if(!prev||correct>prev.correct)store.weekBest[sess.week]={correct,total,timeUsed,date:new Date().toISOString()};}
   save(store);
   renderResults({correct,total,timeUsed,perCat,newFlags,auto});
 }
 function renderResults(r){
-  $("resTitle").textContent="Week "+sess.week+" mock exam"+(r.auto?" · time expired":"");
+  $("resTitle").textContent=(sess.mode==="triage"?"Week "+sess.week+" · time-management drill":"Week "+sess.week+" mock exam")+(r.auto?" · time expired":"");
   $("scorePct").textContent=Math.round(100*r.correct/r.total);
   $("kScore").textContent=r.correct+"/"+r.total;
   $("kTime").textContent=fmt(r.timeUsed)+" / 40:00";
   $("kFlag").textContent=r.newFlags;
-  // category bars
+  renderTimeReport();
   const cc=$("resCats");cc.innerHTML="";
-  CATEGORIES.forEach(c=>{
-    const d=r.perCat[c];const pct=d.total?Math.round(100*d.correct/d.total):0;
-    cc.appendChild(catBar(c,d.correct,d.total,pct));
-  });
-  // review
+  CATEGORIES.forEach(c=>{const d=r.perCat[c];const pct=d.total?Math.round(100*d.correct/d.total):0;cc.appendChild(catBar(c,d.correct,d.total,pct));});
   renderReview();
   show("results");
 }
+function renderTimeReport(){
+  const qs=sess.questions;
+  const perDiff={E:{seen:0,ans:0,correct:0,t:0},M:{seen:0,ans:0,correct:0,t:0},H:{seen:0,ans:0,correct:0,t:0}};
+  let tAns=0,ans=0,blank=0,tWrong=0,quickWins=0,slowRight=0;
+  const sinks=[];
+  qs.forEach((q,i)=>{
+    const t=Math.round(sess.qTime[q.id]||0);
+    const a=sess.answers[q.id];const ok=a===q.answer;
+    const d=perDiff[q.difficulty];d.seen++;
+    if(a){ans++;tAns+=t;d.ans++;d.t+=t;
+      if(ok){d.correct++;if(t<=q.estSecs)quickWins++;else if(t>q.estSecs*1.5)slowRight++;}
+      else{tWrong+=t;if(t>=45)sinks.push({i,q,t});}}
+    else blank++;
+  });
+  sinks.sort((x,y)=>y.t-x.t);
+  const avg=ans?Math.round(tAns/ans):0;
+  const pctWrong=tAns?Math.round(100*tWrong/tAns):0;
+  const wrap=$("timeReport");
+  let html='<div class="kpis">'+
+    kpi(avg+"s","Avg / question")+
+    kpi(quickWins,"Quick wins (fast & right)")+
+    kpi(sinks.length,"Time sinks (slow & wrong)")+
+    kpi(blank,"Unanswered")+'</div>';
+  // difficulty table
+  html+='<table class="dtable"><tr><th>Difficulty</th><th>Answered</th><th>Accuracy</th><th>Avg time</th></tr>';
+  ["E","M","H"].forEach(k=>{const d=perDiff[k];
+    const accuracy=d.ans?Math.round(100*d.correct/d.ans)+"%":"—";
+    const at=d.ans?Math.round(d.t/d.ans)+"s":"—";
+    html+='<tr><td><span class="diff '+k+'">'+DIFF_NAME[k]+'</span></td><td>'+d.ans+"/"+d.seen+'</td><td>'+accuracy+'</td><td>'+at+'</td></tr>';});
+  html+='</table>';
+  // time sinks list
+  if(sinks.length){
+    html+='<p class="note" style="margin:14px 0 6px"><b>Biggest time sinks</b> — long time spent and still incorrect. On the real day, these are the ones to recognise early and skip:</p>';
+    sinks.slice(0,5).forEach(s=>{html+='<div class="sink"><span class="t">'+s.t+'s</span><span class="diff '+s.q.difficulty+'">'+DIFF_NAME[s.q.difficulty]+'</span><span>Q'+(s.i+1)+' · '+esc(s.q.category)+'</span></div>';});
+  }
+  // coaching
+  const tips=[];
+  if(blank>0)tips.push("You ran out of time on <b>"+blank+"</b> question"+(blank>1?"s":"")+". Move faster through the hard ones so you reach every question — an unanswered question scores the same as a wrong one.");
+  if(pctWrong>=35)tips.push("About <b>"+pctWrong+"%</b> of your working time went on questions you got <b>wrong</b>. Practise spotting a slow question early and parking it.");
+  if(perDiff.H.ans&&Math.round(perDiff.H.t/perDiff.H.ans)>=90&&perDiff.H.correct/perDiff.H.ans<0.5)tips.push("You're spending a long time on <b>Hard</b> questions with a low success rate. Bank the Easy and Medium marks first, then return to the hard ones.");
+  if(quickWins>=Math.ceil(ans*0.3))tips.push("Nice pace: <b>"+quickWins+"</b> quick, correct answers. That's exactly how to handle the easier questions.");
+  if(perDiff.E.ans&&perDiff.E.correct<perDiff.E.ans)tips.push("You missed at least one <b>Easy</b> question — slow down just enough on these to avoid careless errors; they are the cheapest marks.");
+  if(!tips.length)tips.push("Well-balanced pacing. Keep doing the quick questions first and leaving the slow ones for a second pass.");
+  html+='<div class="coach"><b>Coaching</b><ul>'+tips.map(t=>"<li>"+t+"</li>").join("")+'</ul></div>';
+  wrap.innerHTML=html;
+}
+function kpi(v,l){return '<div class="kpi"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>';}
 function renderReview(){
   const only=$("onlyWrong").checked;
   const wrap=$("reviewList");wrap.innerHTML="";
   sess.questions.forEach((q,i)=>{
     const a=sess.answers[q.id];const ok=a===q.answer;
     if(only&&ok)return;
+    const t=Math.round(sess.qTime[q.id]||0);
     const item=document.createElement("div");
     item.className="review-item "+(ok?"correct":"wrong");
     const yourTxt=a?(a+". "+q.options[a]):"— not answered";
     item.innerHTML=
-      '<div class="row"><span class="qcat">'+q.category+'</span>'+
+      '<div class="row"><span class="qcat">'+esc(q.category)+'</span>'+
+      '<span class="diff '+q.difficulty+'">'+DIFF_NAME[q.difficulty]+'</span>'+
+      '<span class="note">'+t+'s</span>'+
       '<span class="spacer"></span>'+
       '<span class="tag '+(ok?"ok":"no")+'">'+(ok?"Correct":"Review")+'</span></div>'+
       '<div class="qtext" style="font-size:15px"></div>'+
@@ -418,7 +563,7 @@ function renderReview(){
 }
 function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML;}
 $("onlyWrong").onchange=renderReview;
-$("submitBtn").onclick=()=>submitExam(false);
+$("submitBtn").onclick=()=>finishExam(false);
 $("backHome").onclick=()=>{renderDashboard();show("dashboard");};
 $("retryWrong").onclick=()=>{renderDashboard();startFocus();};
 
@@ -431,40 +576,38 @@ function catBar(name,correct,total,pct){
   return row;
 }
 function renderDashboard(){
-  // week cards
   const g=$("weekGrid");g.innerHTML="";
+  const tg=$("triageGrid");tg.innerHTML="";
   [1,2,3,4].forEach(w=>{
-    const best=store.weekBest[w];
-    const card=document.createElement("div");card.className="weekcard";
-    const done=!!best;
+    const best=store.weekBest[w];const done=!!best;
     const pct=done?Math.round(100*best.correct/best.total):null;
+    const card=document.createElement("div");card.className="weekcard";
     card.innerHTML='<div class="row"><span class="wtitle">Week '+w+'</span>'+
       '<span class="spacer"></span><span class="badge '+(done?"done":"")+'">'+(done?"Best "+pct+"%":"Not attempted")+'</span></div>'+
       '<div class="best">'+(done?("Score "+best.correct+"/"+best.total+" · "+fmt(best.timeUsed)+" used"):"35 questions · 40 min")+'</div>'+
-      '<button class="btn-primary btn-sm" data-w="'+w+'">'+(done?"Retake":"Start exam")+'</button>';
+      '<button class="btn-primary btn-sm">'+(done?"Retake":"Start exam")+'</button>';
     card.querySelector("button").onclick=()=>startExam(w);
     g.appendChild(card);
+    const tc=document.createElement("div");tc.className="weekcard";
+    tc.innerHTML='<div class="row"><span class="wtitle">Week '+w+'</span></div>'+
+      '<div class="best">Paced drill · per-question timer</div>'+
+      '<button class="btn-teal btn-sm">Start drill</button>';
+    tc.querySelector("button").onclick=()=>startTriage(w);
+    tg.appendChild(tc);
   });
-  // flags
   const nf=activeFlags().length;
   $("flagCount").textContent=nf+" flagged";
   $("startFocus").disabled=nf===0;
-  // category progress
   const cp=$("catProgress");cp.innerHTML="";
-  CATEGORIES.forEach(c=>{
-    const s=store.categoryStats[c];const pct=s.seen?Math.round(100*s.correct/s.seen):0;
-    cp.appendChild(catBar(c,s.correct,s.seen,pct));
-  });
+  CATEGORIES.forEach(c=>{const s=store.categoryStats[c];const pct=s.seen?Math.round(100*s.correct/s.seen):0;cp.appendChild(catBar(c,s.correct,s.seen,pct));});
   $("attemptCount").textContent=store.attempts;
 }
 $("startFocus").onclick=startFocus;
 $("clearFlags").onclick=()=>{if(confirm("Clear all focused-study flags?")){store.flagged={};save(store);renderDashboard();}};
 $("resetAll").onclick=()=>{if(confirm("Erase ALL saved progress, scores and flags on this device?")){store=blankStore();save(store);renderDashboard();}};
 
-// guard: warn on leaving mid-exam
-window.addEventListener("beforeunload",e=>{if(sess&&sess.mode==="mock"&&sess.timerId){e.preventDefault();e.returnValue="";}});
+window.addEventListener("beforeunload",e=>{if(sess&&sess.timerId){e.preventDefault();e.returnValue="";}});
 
-// init
 if(typeof QUESTIONS==="undefined"){document.body.innerHTML='<div class="wrap"><div class="card"><h2>Could not load questions.js</h2><p>Make sure <b>questions.js</b> is in the same folder as this file.</p></div></div>';}
 else{renderDashboard();show("dashboard");}
 </script>

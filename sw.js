@@ -1,7 +1,7 @@
 /* Offline service worker for NSW Selective Maths app.
    Cache-first for the app shell so it runs with no internet after first load.
    Bump CACHE when you change questions.js or the app to force an update. */
-const CACHE = "nsw-maths-v1";
+const CACHE = "nsw-maths-v2";
 const ASSETS = [
   "./",
   "./app.html",
