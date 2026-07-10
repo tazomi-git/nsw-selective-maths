@@ -169,7 +169,7 @@
         <span class="spacer"></span>
         <span id="flagCount" class="pill">0 flagged</span>
       </div>
-      <p class="note">Skills you get wrong are marked for focused study. You first see a <b>concept card</b> (principle, method, worked example), then practise with <b>fresh variants</b> of that skill — same method, new numbers and often reversed (e.g. find the total instead of a share) — so you learn the idea, not one answer. Skills are <b>interleaved</b> so you must pick the right method, and once mastered they <b>come back for spaced review</b> a few days later so they stick.</p>
+      <p class="note">Skills you get wrong are marked for focused study. For each one you see a <b>concept card</b> (principle, method, worked example), then <b>the question you missed</b> to re-attempt, then <b>fresh variants</b> — same method, new numbers, often reversed (e.g. find the total instead of a share). Skills are <b>interleaved</b> so you must pick the right method, and once mastered they <b>come back for spaced review</b> a few days later so they stick.</p>
       <div class="row">
         <button id="startFocus" class="btn-warn">Start focused study</button>
         <button id="clearFlags" class="btn-ghost btn-sm">Clear all flags</button>
@@ -393,10 +393,11 @@ function startFocus(){
   let items=[];
   Object.keys(byConcept).forEach(c=>{
     const flagIds=byConcept[c];
+    // 1) first, the actual question(s) you missed — so you can see and re-attempt them
+    flagIds.forEach(id=>{const q=Object.assign({},qById(id));q._flagIds=[id];q._concept=c;q._kind="missed";items.push(q);});
+    // 2) then fresh bidirectional variants of the same skill for extra practice
     if(typeof hasGenerator==="function"&&hasGenerator(c)){
-      for(let i=0;i<2;i++){const v=generateVariant(c);if(v){v._flagIds=flagIds.slice();v._concept=c;items.push(v);}}
-    }else{
-      flagIds.forEach(id=>{const q=Object.assign({},qById(id));q._flagIds=[id];q._concept=c;items.push(q);});
+      for(let i=0;i<2;i++){const v=generateVariant(c);if(v){v._flagIds=flagIds.slice();v._concept=c;v._kind="variant";items.push(v);}}
     }
   });
   items=interleave(items,it=>it._concept);
@@ -501,6 +502,7 @@ function renderQuestion(){
   cc.classList.add("hidden");
   $("qText").style.display="";$("optList").style.display="";
   if(foot)foot.style.display="";
+  if(sess.mode==="focus")$("qId").textContent=q._kind==="variant"?"✨ Practice variant":"📌 The question you missed";
   $("qText").textContent=q.question;
   const list=$("optList");list.innerHTML="";
   if(cf){
