@@ -169,7 +169,7 @@
         <span class="spacer"></span>
         <span id="flagCount" class="pill">0 flagged</span>
       </div>
-      <p class="note">Questions you answer incorrectly are automatically marked for focused study. For each one you first see a <b>concept card</b> — the principle, the method steps and a worked example — then a “Now you try”. Practise untimed until you get it right; a correct answer clears the flag.</p>
+      <p class="note">Skills you get wrong are marked for focused study. You first see a <b>concept card</b> (principle, method, worked example), then practise with <b>fresh variants</b> of that skill — same method, new numbers and often reversed (e.g. find the total instead of a share) — so you learn the idea, not one answer. Skills are <b>interleaved</b> so you must pick the right method, and once mastered they <b>come back for spaced review</b> a few days later so they stick.</p>
       <div class="row">
         <button id="startFocus" class="btn-warn">Start focused study</button>
         <button id="clearFlags" class="btn-ghost btn-sm">Clear all flags</button>
@@ -279,6 +279,7 @@
 
 <script src="questions.js"></script>
 <script src="concepts.js"></script>
+<script src="variants.js"></script>
 <script>
 "use strict";
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
@@ -298,6 +299,8 @@ function normalize(s){
   if(!s.categoryStats)s.categoryStats={};
   CATEGORIES.forEach(c=>{if(!s.categoryStats[c])s.categoryStats[c]={correct:0,seen:0};});
   if(!s.weekBest)s.weekBest={};if(!s.flagged)s.flagged={};
+  // migrate old flag shape {wrong,resolved} -> Leitner {box,due,wrong}
+  Object.keys(s.flagged).forEach(id=>{const f=s.flagged[id];if(typeof f.box!=="number"){f.box=f.resolved?1:0;f.due=f.due||Date.now();delete f.resolved;}});
   if(typeof s.attempts!=="number")s.attempts=0;
   if(!Array.isArray(s.history))s.history=[];
   if(s.inProgress===undefined)s.inProgress=null;
@@ -312,8 +315,17 @@ const LETTERS=["A","B","C","D","E"];
 function byWeek(w){return QUESTIONS.filter(q=>q.week===w);}
 function qById(id){return QUESTIONS.find(q=>q.id===id);}
 function fmt(sec){const m=Math.floor(sec/60),s=sec%60;return m+":"+String(s).padStart(2,"0");}
-function activeFlags(){return Object.keys(store.flagged).filter(id=>store.flagged[id]&&!store.flagged[id].resolved);}
-function conceptFor(q){const k=(typeof TOPIC_CONCEPT!=="undefined")?TOPIC_CONCEPT[q.topic]:null;return (k&&typeof CONCEPTS!=="undefined"&&CONCEPTS[k])?{key:k,c:CONCEPTS[k]}:null;}
+// ---- spaced-review (Leitner) flag model ----
+const DAY=86400000, INTERVALS=[1,3,7,16]; // days until a mastered skill re-surfaces
+function flagFail(qid){const f=store.flagged[qid]||{box:0,wrong:0};f.box=0;f.due=Date.now();f.wrong=(f.wrong||0)+1;store.flagged[qid]=f;}
+function flagPass(qid){const f=store.flagged[qid];if(!f)return;f.box=(f.box||0)+1;const d=INTERVALS[Math.min(f.box,INTERVALS.length)-1];f.due=Date.now()+d*DAY;store.flagged[qid]=f;}
+function strugglingIds(){return Object.keys(store.flagged).filter(id=>(store.flagged[id].box||0)===0);}
+function dueReviewIds(){const n=Date.now();return Object.keys(store.flagged).filter(id=>{const f=store.flagged[id];return (f.box||0)>=1&&(f.due||0)<=n;});}
+function practiceIds(){return Array.from(new Set(strugglingIds().concat(dueReviewIds())));}
+function activeFlags(){return practiceIds();}
+function conceptKeyOf(q){return q._concept||((typeof TOPIC_CONCEPT!=="undefined"&&TOPIC_CONCEPT[q.topic])||q.topic);}
+function conceptFor(q){const k=conceptKeyOf(q);return (k&&typeof CONCEPTS!=="undefined"&&CONCEPTS[k])?{key:k,c:CONCEPTS[k]}:null;}
+function interleave(items,keyFn){const g={};items.forEach(it=>{const k=keyFn(it);(g[k]=g[k]||[]).push(it);});const ks=Object.keys(g);const out=[];let n=items.length;while(n>0){for(const k of ks){if(g[k].length){out.push(g[k].shift());n--;}}}return out;}
 function conceptHTML(c){
   return '<h3>'+esc(c.title)+'</h3><div class="principle">'+esc(c.principle)+'</div>'+
     '<div class="mh">Method</div><ol>'+c.steps.map(s=>'<li>'+esc(s)+'</li>').join("")+'</ol>'+
@@ -373,10 +385,23 @@ function startTriage(week){
   beginSession(true);
 }
 function startFocus(){
-  const ids=activeFlags();
-  if(!ids.length){alert("No questions are flagged yet. Finish a mock exam first — anything you miss lands here.");return;}
-  sess={mode:"focus",week:null,questions:ids.map(qById).filter(Boolean),answers:{},flags:new Set(),parked:new Set(),
-        idx:0,timeLeft:null,timerId:null,qTime:{},curStart:null,qLeft:null,pass:1};
+  const ids=practiceIds();
+  if(!ids.length){alert("Nothing to practise right now — finish a mock exam, or come back when spaced reviews are due.");return;}
+  // group flagged skills by concept; serve fresh bidirectional variants where we have a generator
+  const byConcept={};
+  ids.forEach(id=>{const q=qById(id);if(!q)return;(byConcept[conceptKeyOf(q)]=byConcept[conceptKeyOf(q)]||[]).push(id);});
+  let items=[];
+  Object.keys(byConcept).forEach(c=>{
+    const flagIds=byConcept[c];
+    if(typeof hasGenerator==="function"&&hasGenerator(c)){
+      for(let i=0;i<2;i++){const v=generateVariant(c);if(v){v._flagIds=flagIds.slice();v._concept=c;items.push(v);}}
+    }else{
+      flagIds.forEach(id=>{const q=Object.assign({},qById(id));q._flagIds=[id];q._concept=c;items.push(q);});
+    }
+  });
+  items=interleave(items,it=>it._concept);
+  sess={mode:"focus",week:null,questions:items,answers:{},flags:new Set(),parked:new Set(),
+        idx:0,timeLeft:null,timerId:null,qTime:{},curStart:null,qLeft:null,pass:1,learned:new Set(),phase:"try",review:false};
   beginSession(false);
 }
 function beginSession(timed){
@@ -518,10 +543,9 @@ function setControls(){
 function selectOption(qid,L){
   sess.answers[qid]=L;
   if(sess.mode==="focus"){
-    const q=qById(qid);const ok=L===q.answer;
-    store.categoryStats[q.category].seen++;
-    if(ok){store.categoryStats[q.category].correct++;if(store.flagged[qid])store.flagged[qid].resolved=true;}
-    else{store.flagged[qid]=store.flagged[qid]||{wrong:0};store.flagged[qid].wrong++;store.flagged[qid].resolved=false;}
+    const q=sess.questions[sess.idx];const ok=L===q.answer;   // may be a generated variant
+    if(store.categoryStats[q.category]){store.categoryStats[q.category].seen++;if(ok)store.categoryStats[q.category].correct++;}
+    (q._flagIds||[qid]).forEach(id=>ok?flagPass(id):flagFail(id));
     save(store);
     renderQuestion();renderNav();updateProg();return;
   }
@@ -574,10 +598,8 @@ function finishExam(auto){
     const a=sess.answers[q.id];const ok=a===q.answer;
     perCat[q.category].total++;store.categoryStats[q.category].seen++;
     if(ok){correct++;perCat[q.category].correct++;store.categoryStats[q.category].correct++;
-      if(store.flagged[q.id])store.flagged[q.id].resolved=true;}
-    else{store.flagged[q.id]=store.flagged[q.id]||{wrong:0};
-      if(store.flagged[q.id].resolved!==false)newFlags++;
-      store.flagged[q.id].wrong++;store.flagged[q.id].resolved=false;}
+      if(store.flagged[q.id])flagPass(q.id);}
+    else{if(!store.flagged[q.id])newFlags++;flagFail(q.id);}
   });
   store.attempts++;
   const total=sess.questions.length;
@@ -710,9 +732,9 @@ function renderDashboard(){
     tc.querySelector("button").onclick=()=>startTriage(w);
     tg.appendChild(tc);
   });
-  const nf=activeFlags().length;
-  $("flagCount").textContent=nf+" flagged";
-  $("startFocus").disabled=nf===0;
+  const sN=strugglingIds().length,dN=dueReviewIds().length;
+  $("flagCount").textContent=(sN+dN)+" to practise"+(dN?" · "+dN+" review":"");
+  $("startFocus").disabled=(sN+dN)===0;
   const cp=$("catProgress");cp.innerHTML="";
   CATEGORIES.forEach(c=>{const s=store.categoryStats[c];const pct=s.seen?Math.round(100*s.correct/s.seen):0;cp.appendChild(catBar(c,s.correct,s.seen,pct));});
   $("attemptCount").textContent=store.attempts;
