@@ -44,8 +44,6 @@
   .btn-ghost{background:#f1f5f9;color:var(--ink)}
   .btn-ghost:hover{background:#e2e8f0}
   .btn-warn{background:var(--flag);color:#3b2600}
-  .btn-teal{background:#0d9488;color:#fff}
-  .btn-teal:hover{background:#0f766e}
   .btn-danger{background:#fff;color:var(--bad);border:1px solid var(--bad)}
   .btn-sm{padding:7px 12px;font-size:13px;border-radius:9px}
   .catrow{display:flex;align-items:center;gap:12px;margin:10px 0}
@@ -62,8 +60,6 @@
   .timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:22px;padding:6px 12px;border-radius:10px;background:#eff6ff;color:var(--brand)}
   .timer.warn{background:#fef3c7;color:#b45309}
   .timer.crit{background:var(--bad-bg);color:var(--bad);animation:pulse 1s infinite}
-  .qtimer{font-variant-numeric:tabular-nums;font-weight:800;font-size:16px;padding:6px 10px;border-radius:10px;background:#eef2ff;color:#3730a3}
-  .qtimer.warn{background:#fee2e2;color:#b91c1c;animation:pulse 1s infinite}
   @keyframes pulse{50%{opacity:.5}}
   .progress-mini{flex:1;min-width:120px}
   .progress-mini .bar{height:8px}
@@ -73,12 +69,10 @@
   .navgrid button.answered{background:#dbeafe;color:var(--brand)}
   .navgrid button.current{outline:2px solid var(--brand);outline-offset:1px}
   .navgrid button.flagged{border-color:var(--flag);box-shadow:inset 0 -3px 0 var(--flag)}
-  .navgrid button.parked{background:#fef3c7;color:#92400e;border-color:var(--flag)}
-  .banner{background:#ecfeff;border:1px solid #a5f3fc;color:#155e75;border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:14px}
   .qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
   .qcat{font-size:12px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.4px}
   .qtext{font-size:16px;white-space:pre-wrap;margin:8px 0 16px}
-  .opt{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:.12s;background:#fff}
+  .opt{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:.12s;background:#fff;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
   .opt:hover{border-color:var(--brand);background:#f8faff}
   .opt.sel{border-color:var(--brand);background:#eff6ff}
   .opt .lab{width:26px;height:26px;flex:none;border-radius:50%;background:#f1f5f9;display:grid;place-items:center;font-weight:800;font-size:13px}
@@ -103,6 +97,13 @@
   .sink .t{font-weight:800;color:var(--bad);font-variant-numeric:tabular-nums}
   .coach{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 14px;font-size:14px;margin-top:12px}
   .coach ul{margin:6px 0 0;padding-left:20px} .coach li{margin:3px 0}
+  .verdict{font-size:15px;font-weight:600;margin:2px 0 12px}
+  .sumline{border-left:4px solid var(--line);border-radius:8px;background:#f8fafc;padding:10px 14px 10px 12px;margin-bottom:10px;font-size:14px}
+  .sumline:last-child{margin-bottom:0}
+  .sumline .h{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+  .sumline.good{border-color:var(--ok)} .sumline.good .h{color:var(--ok)}
+  .sumline.focus{border-color:var(--flag)} .sumline.focus .h{color:#b45309}
+  .sumline.prog{border-color:var(--brand)} .sumline.prog .h{color:var(--brand)}
   .review-item{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
   .review-item.correct{border-left:5px solid var(--ok)}
   .review-item.wrong{border-left:5px solid var(--bad)}
@@ -123,10 +124,37 @@
   .concept .eg b{color:var(--brand-dark)}
   details.methodDetails{margin-bottom:12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:8px 12px}
   details.methodDetails summary{color:var(--brand);font-weight:700}
+  .tbSelect{font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);max-width:60%}
+  .tbSummary{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:10px 0 12px}
+  .tbSummary b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .tbtable{width:100%;border-collapse:collapse;font-size:13px}
+  .tbtable td{border-bottom:1px solid var(--line);padding:8px 8px;vertical-align:middle}
+  .tbtable tr:last-child td{border-bottom:none}
+  .tbtable .tbq{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .tbtable .tbcat{color:var(--muted)}
+  .tbtime{width:42%;min-width:150px}
+  .tbtime .lane{display:flex;align-items:center;gap:8px}
+  .tbtime .track{flex:1;height:8px;background:#eef2f7;border-radius:999px;overflow:hidden}
+  .tbtime .track i{display:block;height:100%;border-radius:999px;background:var(--brand)}
+  .tr-ok .tbtime .track i{background:var(--ok)} .tr-no .tbtime .track i{background:var(--bad)} .tr-blank .tbtime .track i{background:#cbd5e1}
+  .tbtime .secs{font-variant-numeric:tabular-nums;font-weight:600;min-width:38px;text-align:right}
+  .tbres{text-align:right;white-space:nowrap;font-weight:700;font-size:12px}
+  .tbres.ok{color:var(--ok)} .tbres.no{color:var(--bad)} .tbres.blank{color:var(--muted)}
+  @media(max-width:560px){.tbtable .tbcat{display:none}.tbtime{width:auto}}
   .histrow{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;flex-wrap:wrap}
   .histrow .sc{font-weight:800;font-size:16px;min-width:60px}
   .histrow .meta{font-size:13px;color:var(--muted)}
   @media(max-width:560px){.catrow .name{width:130px}}
+  /* touch devices (e.g. iPad) don't truly hover — tapping otherwise leaves a sticky hover highlight */
+  @media (hover: none){
+    .opt:hover{border-color:var(--line);background:#fff}
+    .opt.sel:hover{border-color:var(--brand);background:#eff6ff}
+    .opt.correct:hover{border-color:var(--ok);background:var(--ok-bg)}
+    .opt.wrong:hover{border-color:var(--bad);background:var(--bad-bg)}
+    .btn-primary:hover{background:var(--brand)}
+    .btn-ghost:hover{background:#f1f5f9}
+    .weekcard:hover{border-color:var(--line);transform:none}
+  }
 </style>
 </head>
 <body>
@@ -157,10 +185,12 @@
 
     <div class="card">
       <div class="row">
-        <h2 style="margin:0">⏱ Time-management drill</h2>
+        <h2 style="margin:0">⏱ Time &amp; accuracy review</h2>
+        <span class="spacer"></span>
+        <select id="tbSelect" class="tbSelect"></select>
       </div>
-      <p class="note">Trains exam pacing. Each question gets a per-question timer set by its difficulty — <span class="diff E">Easy</span> <span class="diff M">Medium</span> <span class="diff H">Hard</span>. Lock in the quick ones; when a timer runs out the question is <b>parked</b> so you keep moving, then you revisit parked questions in a second pass. Finishes with a full time report.</p>
-      <div id="triageGrid" class="grid-weeks"></div>
+      <p class="note">A question-by-question breakdown of a completed exam: how long you spent on each question, next to whether you got it right. The time bars make it easy to spot which questions ate the clock — and whether that time actually earned the mark.</p>
+      <div id="timeBreakdown"></div>
     </div>
 
     <div class="card">
@@ -184,7 +214,7 @@
 
     <div class="card">
       <h2>Past attempts</h2>
-      <p class="note">Every completed exam and drill is saved here. Open one to review each question, your answer, the timing and the full explanation.</p>
+      <p class="note">Every completed exam is saved here. Open one to review each question, your answer, the timing and the full explanation.</p>
       <div id="historyList"></div>
     </div>
 
@@ -204,7 +234,6 @@
   <section id="view-exam" class="hidden">
     <div class="exambar">
       <div id="timer" class="timer">40:00</div>
-      <div id="qTimer" class="qtimer hidden">45s</div>
       <div class="progress-mini"><div class="bar"><i id="examProg" style="width:0%"></i></div></div>
       <div class="qcount"><span id="answeredCount">0</span>/<span id="totalCount">35</span></div>
       <span class="spacer"></span>
@@ -212,7 +241,6 @@
       <button id="submitBtn" class="btn-primary btn-sm">Submit paper</button>
     </div>
     <div class="card">
-      <div id="triageBanner" class="banner hidden"></div>
       <div class="qhead">
         <span class="qcat" id="qCat"></span>
         <div class="row">
@@ -227,7 +255,6 @@
       <div class="foot">
         <button id="prevBtn" class="btn-ghost btn-sm">← Previous</button>
         <span class="note">Question <b id="qNum">1</b> of <b id="qTotal">35</b></span>
-        <button id="parkBtn" class="btn-warn btn-sm hidden">Park &amp; skip →</button>
         <button id="nextBtn" class="btn-ghost btn-sm">Next →</button>
       </div>
     </div>
@@ -253,6 +280,10 @@
           <div class="kpi"><div class="v" id="kFlag">0</div><div class="l">New flags</div></div>
         </div>
       </div>
+    </div>
+    <div class="card" id="summaryCard">
+      <h2>📊 Summary</h2>
+      <div id="examSummary"></div>
     </div>
     <div class="card" id="timeReportCard">
       <h2>⏱ Time management</h2>
@@ -336,38 +367,36 @@ function setFocusPhase(){
   const q=sess.questions[sess.idx];const cf=conceptFor(q);
   sess.phase=(cf&&!sess.learned.has(cf.key)&&!sess.answers[q.id])?"learn":"try";
 }
-// ---- resume / save-in-progress (timed modes only) ----
+// ---- resume / save-in-progress (mock exam only) ----
 function saveProgress(){
-  if(!sess||sess.review||(sess.mode!=="mock"&&sess.mode!=="triage"))return;
+  if(!sess||sess.review||sess.mode!=="mock")return;
   accumulate();
   store.inProgress={mode:sess.mode,week:sess.week,idx:sess.idx,answers:sess.answers,qTime:sess.qTime,
-    flags:[...sess.flags],parked:[...sess.parked],timeLeft:sess.timeLeft,pass:sess.pass,savedAt:Date.now()};
+    flags:[...sess.flags],timeLeft:sess.timeLeft,savedAt:Date.now()};
   save(store);
 }
 function clearProgress(){store.inProgress=null;save(store);}
 function resumeExam(){
   const p=store.inProgress;if(!p)return;
-  sess={mode:p.mode,week:p.week,questions:byWeek(p.week),answers:p.answers||{},
-    flags:new Set(p.flags||[]),parked:new Set(p.parked||[]),idx:p.idx||0,
-    timeLeft:p.timeLeft,timerId:null,qTime:p.qTime||{},curStart:Date.now(),qLeft:null,
-    pass:p.pass||1,learned:new Set(),phase:"try",review:false};
+  sess={mode:"mock",week:p.week,questions:byWeek(p.week),answers:p.answers||{},
+    flags:new Set(p.flags||[]),idx:p.idx||0,
+    timeLeft:p.timeLeft,timerId:null,qTime:p.qTime||{},curStart:Date.now(),
+    learned:new Set(),phase:"try",review:false};
   $("totalCount").textContent=sess.questions.length;$("qTotal").textContent=sess.questions.length;
   $("timer").style.display="";
-  $("submitBtn").textContent=sess.mode==="triage"?"Finish drill":"Submit paper";
+  $("submitBtn").textContent="Submit paper";
   $("exitBtn").textContent="Save & exit";
-  if(sess.mode==="triage"&&sess.pass===1)sess.qLeft=sess.questions[sess.idx].estSecs;
-  if(sess.mode==="triage"&&sess.pass===2)$("triageBanner").innerHTML="<b>Second pass.</b> Revisit the questions you parked or skipped.";
   tick();sess.timerId=setInterval(onTick,1000);
-  renderQuestion();renderNav();updateProg();renderQTimer();
+  renderQuestion();renderNav();updateProg();
   show("exam");
 }
 function reviewAttempt(h){
   sess={mode:h.mode,week:h.week,questions:byWeek(h.week),answers:h.answers||{},
-    flags:new Set(),parked:new Set(),idx:0,timerId:null,qTime:h.qTime||{},curStart:null,
-    qLeft:null,pass:1,learned:new Set(),phase:"try",review:true};
+    flags:new Set(),idx:0,timerId:null,qTime:h.qTime||{},curStart:null,
+    learned:new Set(),phase:"try",review:true};
   const perCat={};CATEGORIES.forEach(c=>perCat[c]={correct:0,total:0});
   sess.questions.forEach(q=>{perCat[q.category].total++;if(sess.answers[q.id]===q.answer)perCat[q.category].correct++;});
-  renderResults({correct:h.correct,total:h.total,timeUsed:h.timeUsed,perCat,newFlags:0,auto:false});
+  renderResults({correct:h.correct,total:h.total,timeUsed:h.timeUsed,perCat,newFlags:0,auto:false},h);
 }
 function fmtDate(iso){try{const d=new Date(iso);return d.toLocaleDateString(undefined,{day:"numeric",month:"short"})+" "+d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});}catch(e){return "";}}
 
@@ -375,13 +404,8 @@ function fmtDate(iso){try{const d=new Date(iso);return d.toLocaleDateString(unde
 let sess=null;
 
 function startExam(week){
-  sess={mode:"mock",week,questions:byWeek(week),answers:{},flags:new Set(),parked:new Set(),
-        idx:0,timeLeft:TOTAL_TIME,timerId:null,qTime:{},curStart:null,qLeft:null,pass:1};
-  beginSession(true);
-}
-function startTriage(week){
-  sess={mode:"triage",week,questions:byWeek(week),answers:{},flags:new Set(),parked:new Set(),
-        idx:0,timeLeft:TOTAL_TIME,timerId:null,qTime:{},curStart:null,qLeft:null,pass:1};
+  sess={mode:"mock",week,questions:byWeek(week),answers:{},flags:new Set(),
+        idx:0,timeLeft:TOTAL_TIME,timerId:null,qTime:{},curStart:null};
   beginSession(true);
 }
 function startFocus(){
@@ -393,53 +417,44 @@ function startFocus(){
   let items=[];
   Object.keys(byConcept).forEach(c=>{
     const flagIds=byConcept[c];
-    // 1) first, the actual question(s) you missed — so you can see and re-attempt them
-    flagIds.forEach(id=>{const q=Object.assign({},qById(id));q._flagIds=[id];q._concept=c;q._kind="missed";items.push(q);});
-    // 2) then fresh bidirectional variants of the same skill for extra practice
-    if(typeof hasGenerator==="function"&&hasGenerator(c)){
-      for(let i=0;i<2;i++){const v=generateVariant(c);if(v){v._flagIds=flagIds.slice();v._concept=c;v._kind="variant";items.push(v);}}
-    }
+    const gen=(typeof hasGenerator==="function"&&hasGenerator(c));
+    flagIds.forEach(id=>{
+      // 1) REVIEW: the exact question you missed, shown with its worked explanation + method card
+      const rev=Object.assign({},qById(id));rev._flagIds=[id];rev._concept=c;rev._kind="review";items.push(rev);
+      // if we can't make fresh variants for this skill, re-attempt the same question after reviewing it
+      if(!gen){const at=Object.assign({},qById(id));at._flagIds=[id];at._concept=c;at._kind="missed";items.push(at);}
+    });
+    // 2) NOW YOU TRY: fresh bidirectional variants of the skill
+    if(gen){for(let i=0;i<2;i++){const v=generateVariant(c);if(v){v._flagIds=flagIds.slice();v._concept=c;v._kind="variant";items.push(v);}}}
   });
   items=interleave(items,it=>it._concept);
-  sess={mode:"focus",week:null,questions:items,answers:{},flags:new Set(),parked:new Set(),
-        idx:0,timeLeft:null,timerId:null,qTime:{},curStart:null,qLeft:null,pass:1,learned:new Set(),phase:"try",review:false};
+  sess={mode:"focus",week:null,questions:items,answers:{},flags:new Set(),
+        idx:0,timeLeft:null,timerId:null,qTime:{},curStart:null,learned:new Set(),phase:"try",review:false};
   beginSession(false);
 }
 function beginSession(timed){
   sess.learned=new Set();sess.phase="try";
-  $("totalCount").textContent=sess.questions.length;
+  $("totalCount").textContent=sess.questions.filter(q=>q._kind!=="review").length||sess.questions.length;
   $("qTotal").textContent=sess.questions.length;
   $("timer").style.display=timed?"":"none";
-  $("submitBtn").textContent=sess.mode==="focus"?"Finish practice":(sess.mode==="triage"?"Finish drill":"Submit paper");
+  $("submitBtn").textContent=sess.mode==="focus"?"Finish practice":"Submit paper";
   $("exitBtn").textContent=sess.mode==="focus"?"Exit":"Save & exit";
-  if(sess.mode==="triage"){sess.idx=firstCandidate();}
   sess.curStart=Date.now();
-  if(sess.mode==="triage"&&sess.pass===1)sess.qLeft=sess.questions[sess.idx].estSecs;
   if(timed){sess.timeLeft=TOTAL_TIME;tick();
     sess.timerId=setInterval(onTick,1000);}
   setFocusPhase();
-  renderQuestion();renderNav();updateProg();renderQTimer();
+  renderQuestion();renderNav();updateProg();
   show("exam");
 }
 function onTick(){
   sess.timeLeft--;tick();
   if(sess.timeLeft<=0){finishExam(true);return;}
-  if(sess.mode==="triage"&&sess.pass===1&&sess.qLeft!=null){
-    sess.qLeft--;renderQTimer();
-    if(sess.qLeft<=0)parkCurrent();
-  }
   if(sess.timeLeft%5===0)saveProgress();
 }
 function tick(){
   const t=$("timer");t.textContent=fmt(Math.max(0,sess.timeLeft));
   t.classList.toggle("warn",sess.timeLeft<=300&&sess.timeLeft>60);
   t.classList.toggle("crit",sess.timeLeft<=60);
-}
-function renderQTimer(){
-  const el=$("qTimer");
-  const on=sess.mode==="triage"&&sess.pass===1&&sess.qLeft!=null;
-  el.classList.toggle("hidden",!on);
-  if(on){el.textContent="⏱ "+sess.qLeft+"s";el.classList.toggle("warn",sess.qLeft<=10);}
 }
 // timing
 function accumulate(){
@@ -450,66 +465,46 @@ function accumulate(){
   }
 }
 function goTo(i){
+  if(sess.mode==="focus"){const cq=sess.questions[sess.idx];const cff=conceptFor(cq);if(cff)sess.learned.add(cff.key);}
   accumulate();
   sess.idx=i;sess.curStart=Date.now();
-  sess.qLeft=(sess.mode==="triage"&&sess.pass===1)?sess.questions[i].estSecs:null;
   setFocusPhase();
-  renderQuestion();renderNav();updateProg();renderQTimer();
+  renderQuestion();renderNav();updateProg();
   saveProgress();
-}
-// triage navigation
-function firstCandidate(){for(let i=0;i<sess.questions.length;i++){const q=sess.questions[i];if(!sess.answers[q.id]&&!sess.parked.has(q.id))return i;}return 0;}
-function nextCandidate(from){const n=sess.questions.length;for(let k=1;k<=n;k++){const i=(from+k)%n;const q=sess.questions[i];if(!sess.answers[q.id]&&!sess.parked.has(q.id))return i;}return -1;}
-function nextUnanswered(){const n=sess.questions.length;for(let i=0;i<n;i++){const q=sess.questions[i];if(!sess.answers[q.id])return i;}return -1;}
-function advanceTriage(){
-  const nx=nextCandidate(sess.idx);
-  if(nx<0)enterPass2();
-  else goTo(nx);
-}
-function parkCurrent(){
-  const q=sess.questions[sess.idx];
-  sess.parked.add(q.id);sess.qLeft=null;
-  advanceTriage();
-}
-function enterPass2(){
-  sess.pass=2;sess.qLeft=null;renderQTimer();
-  const ni=nextUnanswered();
-  const b=$("triageBanner");b.classList.remove("hidden");
-  if(ni<0){b.textContent="First pass complete — every question is answered. Review your time report next.";
-    finishExam(false);return;}
-  b.innerHTML="<b>Second pass.</b> Revisit the questions you parked or skipped — the per-question timer is off, use your remaining time wisely.";
-  goTo(ni);
 }
 
 function renderQuestion(){
   const q=sess.questions[sess.idx];
   $("qCat").textContent=q.category;
   const dEl=$("qDiff");dEl.className="diff "+q.difficulty;dEl.textContent=DIFF_NAME[q.difficulty];
-  const prefix=sess.mode==="focus"?"Practice · ":(sess.mode==="triage"?"Drill · ":"");
+  const prefix=sess.mode==="focus"?"Practice · ":"";
   $("qId").textContent=prefix+"Q"+(sess.idx+1);
   const cf=sess.mode==="focus"?conceptFor(q):null;
   const cc=$("conceptCard");
-  const foot=document.querySelector("#view-exam .foot");
-  if(sess.mode==="focus"&&sess.phase==="learn"&&cf){
-    $("qId").textContent="📘 Learn the method";
-    cc.classList.remove("hidden");
-    cc.innerHTML=conceptHTML(cf.c)+'<div style="margin-top:14px"><button id="tryBtn" class="btn-primary">Now you try →</button></div>';
-    $("tryBtn").onclick=()=>{sess.learned.add(cf.key);sess.phase="try";renderQuestion();};
-    $("qText").style.display="none";$("optList").style.display="none";
-    if(foot)foot.style.display="none";
-    setControls();return;
-  }
-  cc.classList.add("hidden");
-  $("qText").style.display="";$("optList").style.display="";
-  if(foot)foot.style.display="";
-  if(sess.mode==="focus")$("qId").textContent=q._kind==="variant"?"✨ Practice variant":"📌 The question you missed";
+  if(sess.mode==="focus"&&cf){
+    const firstTime=!sess.learned.has(cf.key);   // expand the method the first time this skill appears
+    cc.className="";
+    cc.innerHTML='<details class="methodDetails"'+(firstTime?" open":"")+'><summary>📘 Method — '+esc(cf.c.title)+'</summary><div style="margin-top:8px">'+conceptHTML(cf.c)+'</div></details>';
+    $("qId").textContent=q._kind==="variant"?"✨ Practice variant":(q._kind==="missed"?"✨ Now you try":"📌 The question you missed");
+  }else{cc.className="hidden";cc.innerHTML="";}
   $("qText").textContent=q.question;
   const list=$("optList");list.innerHTML="";
-  if(cf){
-    const d=document.createElement("details");d.className="methodDetails";
-    d.innerHTML='<summary>📘 Review the method</summary>';
-    const panel=document.createElement("div");panel.style.marginTop="8px";panel.innerHTML=conceptHTML(cf.c);
-    d.appendChild(panel);list.appendChild(d);
+  // REVIEW item: read-only — show the correct answer + worked explanation, then a "Now you try" button
+  if(sess.mode==="focus"&&q._kind==="review"){
+    LETTERS.forEach(L=>{
+      const div=document.createElement("div");
+      div.className="opt"+(L===q.answer?" correct":"");div.style.cursor="default";
+      div.innerHTML='<div class="lab">'+L+'</div><div class="otext"></div>';
+      div.querySelector(".otext").textContent=q.options[L];
+      list.appendChild(div);
+    });
+    const e=document.createElement("div");e.className="expl";
+    e.innerHTML="<b>Correct answer: "+q.answer+".</b> ";e.appendChild(document.createTextNode(q.explanation));
+    list.appendChild(e);
+    const b=document.createElement("button");b.className="btn-primary";b.style.marginTop="14px";b.textContent="Now you try →";
+    b.onclick=()=>{if(sess.idx<sess.questions.length-1)goTo(sess.idx+1);else finishExam(false);};
+    list.appendChild(b);
+    $("qNum").textContent=sess.idx+1;setControls();return;
   }
   const answered=sess.answers[q.id];
   const reveal=sess.mode==="focus"&&answered;
@@ -533,12 +528,7 @@ function renderQuestion(){
   setControls();
 }
 function setControls(){
-  const t1=sess.mode==="triage"&&sess.pass===1;
   $("flagBtn").style.display=sess.mode==="mock"?"":"none";
-  $("prevBtn").style.display=t1?"none":"";
-  $("nextBtn").style.display=t1?"none":"";
-  $("parkBtn").classList.toggle("hidden",!t1);
-  $("triageBanner").classList.toggle("hidden",!(sess.mode==="triage"&&sess.pass===2));
   $("prevBtn").disabled=sess.idx===0;
   $("nextBtn").disabled=sess.idx===sess.questions.length-1;
 }
@@ -551,37 +541,29 @@ function selectOption(qid,L){
     save(store);
     renderQuestion();renderNav();updateProg();return;
   }
-  if(sess.mode==="triage"&&sess.pass===1){
-    sess.parked.delete(qid);sess.qLeft=null;
-    advanceTriage();return;
-  }
   renderQuestion();renderNav();updateProg();saveProgress();
 }
 function renderNav(){
   const g=$("navGrid");g.innerHTML="";
-  const t1=sess.mode==="triage"&&sess.pass===1;
   sess.questions.forEach((q,i)=>{
     const b=document.createElement("button");
     b.textContent=i+1;
     if(sess.answers[q.id])b.classList.add("answered");
     if(sess.flags.has(q.id))b.classList.add("flagged");
-    if(sess.parked.has(q.id))b.classList.add("parked");
     if(i===sess.idx)b.classList.add("current");
-    if(t1)b.disabled=true; else b.onclick=()=>goTo(i);
+    b.onclick=()=>goTo(i);
     g.appendChild(b);
   });
-  $("navLegend").textContent = sess.mode==="triage"
-    ? "Blue = answered · amber = parked · outline = current. First pass advances automatically."
-    : "Blue = answered · amber underline = flagged · outline = current.";
+  $("navLegend").textContent="Blue = answered · amber underline = flagged · outline = current.";
 }
 function updateProg(){
-  const n=Object.keys(sess.answers).length;
+  const qs=sess.questions.filter(q=>q._kind!=="review");
+  const n=qs.filter(q=>sess.answers[q.id]).length;
   $("answeredCount").textContent=n;
-  $("examProg").style.width=(100*n/sess.questions.length)+"%";
+  $("examProg").style.width=(qs.length?100*n/qs.length:0)+"%";
 }
 $("prevBtn").onclick=()=>{if(sess.idx>0)goTo(sess.idx-1);};
 $("nextBtn").onclick=()=>{if(sess.idx<sess.questions.length-1)goTo(sess.idx+1);};
-$("parkBtn").onclick=()=>parkCurrent();
 $("flagBtn").onclick=()=>{const q=sess.questions[sess.idx];sess.flags.has(q.id)?sess.flags.delete(q.id):sess.flags.add(q.id);renderQuestion();renderNav();saveProgress();};
 
 // ---------- finish / grade ----------
@@ -613,19 +595,90 @@ function finishExam(auto){
   store.history=store.history.slice(0,30);
   store.inProgress=null;
   save(store);
-  renderResults({correct,total,timeUsed,perCat,newFlags,auto});
+  renderResults({correct,total,timeUsed,perCat,newFlags,auto},store.history[0]);
 }
-function renderResults(r){
-  $("resTitle").textContent=(sess.review?"Reviewing · ":"")+(sess.mode==="triage"?"Week "+sess.week+" · time-management drill":"Week "+sess.week+" mock exam")+(r.auto?" · time expired":"");
+function renderResults(r,histRef){
+  $("resTitle").textContent=(sess.review?"Reviewing · ":"")+"Week "+sess.week+" mock exam"+(r.auto?" · time expired":"");
   $("scorePct").textContent=Math.round(100*r.correct/r.total);
   $("kScore").textContent=r.correct+"/"+r.total;
   $("kTime").textContent=fmt(r.timeUsed)+" / 40:00";
   $("kFlag").textContent=r.newFlags;
+  renderExamSummary(r,histRef);
   renderTimeReport();
   const cc=$("resCats");cc.innerHTML="";
   CATEGORIES.forEach(c=>{const d=r.perCat[c];const pct=d.total?Math.round(100*d.correct/d.total):0;cc.appendChild(catBar(c,d.correct,d.total,pct));});
   renderReview();
   show("results");
+}
+// Narrative summary: strengths, focus areas, and progress vs earlier attempts.
+function renderExamSummary(r,histRef){
+  const wrap=$("examSummary");
+  const pct=Math.round(100*r.correct/r.total);
+  const week=sess.week;
+  // per-category accuracy for this exam (only strands that actually appeared)
+  const cats=CATEGORIES.map(c=>{const d=r.perCat[c]||{correct:0,total:0};
+    return {c,correct:d.correct,total:d.total,pct:d.total?Math.round(100*d.correct/d.total):null};})
+    .filter(x=>x.total>0);
+  // per-difficulty accuracy for this exam
+  const dif={E:{c:0,t:0},M:{c:0,t:0},H:{c:0,t:0}};
+  sess.questions.forEach(q=>{const d=dif[q.difficulty];if(!d)return;d.t++;if(sess.answers[q.id]===q.answer)d.c++;});
+  const strong=cats.filter(x=>x.pct>=75).sort((a,b)=>b.pct-a.pct||b.total-a.total);
+  const weak=cats.filter(x=>x.pct<50).sort((a,b)=>a.pct-b.pct||b.total-a.total);
+  const nm=x=>esc(x.c)+" ("+x.correct+"/"+x.total+")";
+
+  // headline verdict
+  let verdict;
+  if(pct>=90)verdict="Outstanding paper — "+pct+"%. Performing at selective-entry standard.";
+  else if(pct>=75)verdict="Strong paper — "+pct+"%. Comfortably above the pass line, with a few marks still on the table.";
+  else if(pct>=60)verdict="Solid effort — "+pct+"%. On track — tightening one or two strands lifts you into the top band.";
+  else if(pct>=40)verdict="A tough paper — "+pct+"%. Clear base to build on; the focus areas below are where the marks are.";
+  else verdict="Early days — "+pct+"%. Work through the focus areas one strand at a time and the score will follow.";
+
+  // strengths
+  let sText;
+  if(strong.length){
+    sText="Strongest in <b>"+strong.slice(0,2).map(nm).join("</b> and <b>")+"</b>.";
+    if(dif.H.t&&dif.H.c/dif.H.t>=0.6)sText+=" You also held up well on the Hard questions ("+dif.H.c+"/"+dif.H.t+").";
+  }else if(cats.length){
+    const best=cats.slice().sort((a,b)=>b.pct-a.pct||b.total-a.total)[0];
+    sText="Best strand this time was <b>"+nm(best)+"</b>, though nothing cleared 75% — the focus areas show where to change that.";
+  }else sText="Not enough answered to judge strengths this time.";
+
+  // focus areas
+  let wText="";
+  if(weak.length)wText="Put your practice into <b>"+weak.slice(0,2).map(nm).join("</b> and <b>")+"</b>.";
+  else if(cats.length)wText="No strand fell below 50% — nicely balanced across every category.";
+  const easyMiss=dif.E.t-dif.E.c;
+  if(easyMiss>0)wText+=(wText?" ":"")+"Watch for careless slips — you missed <b>"+easyMiss+"</b> Easy question"+(easyMiss>1?"s":"")+", the cheapest marks to win back.";
+  const queue=(typeof practiceIds==="function")?practiceIds().length:0;
+  if(queue)wText+=(wText?" ":"")+"There "+(queue===1?"is <b>1 skill</b>":"are <b>"+queue+" skills</b>")+" waiting in Focused study.";
+
+  // progress vs the previous attempt of the same week
+  const idx=histRef?store.history.indexOf(histRef):-1;
+  const mode=idx>=0?store.history[idx].mode:"mock";
+  let prev=null;
+  if(idx>=0)for(let i=idx+1;i<store.history.length;i++){const h=store.history[i];if(h.week===week&&h.mode===mode){prev=h;break;}}
+  let pText;
+  if(prev){
+    const prevPct=Math.round(100*prev.correct/prev.total),d=pct-prevPct;
+    if(d>0)pText="Up <b>"+d+" point"+(d>1?"s":"")+"</b> on your previous Week "+week+" attempt ("+prevPct+"% → "+pct+"%). Clear improvement.";
+    else if(d<0)pText="Down <b>"+(-d)+" point"+(-d>1?"s":"")+"</b> from your previous Week "+week+" attempt ("+prevPct+"% → "+pct+"%). Revisit the misses below.";
+    else pText="Holding steady at <b>"+pct+"%</b>, level with your previous Week "+week+" attempt.";
+    if(typeof prev.timeUsed==="number"){const td=r.timeUsed-prev.timeUsed;
+      if(Math.abs(td)>=30)pText+=" You worked "+fmt(Math.abs(td))+(td<0?" faster":" slower")+" this time.";}
+  }else{
+    const others=store.history.filter((h,i)=>i!==idx&&h.total);
+    if(others.length){const avg=Math.round(others.reduce((s,h)=>s+100*h.correct/h.total,0)/others.length),d=pct-avg;
+      pText="First Week "+week+" attempt — "+(d>=0?"<b>"+d+" point"+(d!==1?"s":"")+" above</b>":"<b>"+(-d)+" point"+(-d!==1?"s":"")+" below</b>")+" your overall average of "+avg+"% so far.";
+    }else pText="Your first exam — this sets your baseline. Retake weeks to watch the trend build.";
+  }
+  if(!sess.review&&prev&&store.weekBest[week]&&r.correct>=store.weekBest[week].correct)pText+=" 🏅 New personal best for Week "+week+".";
+
+  wrap.innerHTML=
+    '<div class="verdict">'+verdict+'</div>'+
+    '<div class="sumline good"><span class="h">Strengths</span>'+sText+'</div>'+
+    (wText?'<div class="sumline focus"><span class="h">Focus areas</span>'+wText+'</div>':'')+
+    '<div class="sumline prog"><span class="h">Progress</span>'+pText+'</div>';
 }
 function renderTimeReport(){
   const qs=sess.questions;
@@ -714,9 +767,56 @@ function catBar(name,correct,total,pct){
   row.querySelector(".name").textContent=name;
   return row;
 }
+// ---------- time & accuracy review ----------
+function renderTimeBreakdown(){
+  const sel=$("tbSelect");const wrap=$("timeBreakdown");
+  if(!store.history.length){
+    sel.style.display="none";sel.innerHTML="";
+    wrap.innerHTML='<p class="note">No completed exams yet. Finish a mock exam and its per-question time breakdown will appear here.</p>';
+    return;
+  }
+  sel.style.display="";
+  sel.innerHTML=store.history.map((h,i)=>
+    '<option value="'+i+'">Week '+h.week+' · mock exam · '+
+    Math.round(100*h.correct/h.total)+'% · '+fmtDate(h.date)+'</option>').join("");
+  sel.onchange=()=>renderBreakdownFor(store.history[+sel.value],wrap);
+  renderBreakdownFor(store.history[0],wrap);
+}
+function renderBreakdownFor(h,wrap){
+  const qs=byWeek(h.week);const qt=h.qTime||{};
+  let maxT=1,totT=0,correct=0,wrong=0,blank=0;
+  qs.forEach(q=>{const t=Math.round(qt[q.id]||0);if(t>maxT)maxT=t;totT+=t;});
+  let rows="";
+  qs.forEach((q,i)=>{
+    const t=Math.round(qt[q.id]||0);
+    const a=(h.answers||{})[q.id];
+    const state=!a?"blank":(a===q.answer?"ok":"no");
+    if(state==="ok")correct++;else if(state==="no")wrong++;else blank++;
+    const label=state==="ok"?"✓ Correct":(state==="no"?"✗ Wrong":"— Skipped");
+    const w=Math.round(100*t/maxT);
+    rows+='<tr class="tr-'+state+'">'+
+      '<td class="tbq">Q'+(i+1)+'</td>'+
+      '<td><span class="diff '+q.difficulty+'">'+DIFF_NAME[q.difficulty]+'</span></td>'+
+      '<td class="tbcat"></td>'+
+      '<td class="tbtime"><div class="lane"><div class="track"><i style="width:'+w+'%"></i></div>'+
+      '<span class="secs">'+t+'s</span></div></td>'+
+      '<td class="tbres '+state+'">'+label+'</td></tr>';
+  });
+  const answered=correct+wrong;
+  const avg=answered?Math.round(totT/answered):0;
+  wrap.innerHTML='<div class="tbSummary">'+
+    '<span><b>'+fmt(h.timeUsed)+'</b> total time</span>'+
+    '<span><b>'+avg+'s</b> avg / answered</span>'+
+    '<span style="color:var(--ok)"><b>'+correct+'</b> correct</span>'+
+    '<span style="color:var(--bad)"><b>'+wrong+'</b> wrong</span>'+
+    '<span><b>'+blank+'</b> skipped</span></div>'+
+    '<table class="tbtable"><tbody>'+rows+'</tbody></table>';
+  // set categories safely (avoid HTML injection from question text)
+  const cells=wrap.querySelectorAll(".tbtable .tbcat");
+  qs.forEach((q,i)=>{if(cells[i])cells[i].textContent=q.category;});
+}
 function renderDashboard(){
   const g=$("weekGrid");g.innerHTML="";
-  const tg=$("triageGrid");tg.innerHTML="";
   [1,2,3,4].forEach(w=>{
     const best=store.weekBest[w];const done=!!best;
     const pct=done?Math.round(100*best.correct/best.total):null;
@@ -727,13 +827,8 @@ function renderDashboard(){
       '<button class="btn-primary btn-sm">'+(done?"Retake":"Start exam")+'</button>';
     card.querySelector("button").onclick=()=>startExam(w);
     g.appendChild(card);
-    const tc=document.createElement("div");tc.className="weekcard";
-    tc.innerHTML='<div class="row"><span class="wtitle">Week '+w+'</span></div>'+
-      '<div class="best">Paced drill · per-question timer</div>'+
-      '<button class="btn-teal btn-sm">Start drill</button>';
-    tc.querySelector("button").onclick=()=>startTriage(w);
-    tg.appendChild(tc);
   });
+  renderTimeBreakdown();
   const sN=strugglingIds().length,dN=dueReviewIds().length;
   $("flagCount").textContent=(sN+dN)+" to practise"+(dN?" · "+dN+" review":"");
   $("startFocus").disabled=(sN+dN)===0;
@@ -745,16 +840,16 @@ function renderDashboard(){
   const rc=$("resumeCard");
   if(p){rc.classList.remove("hidden");
     const ansN=Object.keys(p.answers||{}).length;
-    $("resumeInfo").textContent="Week "+p.week+" "+(p.mode==="triage"?"drill":"mock")+" — "+ansN+" of "+byWeek(p.week).length+" answered, "+fmt(Math.max(0,p.timeLeft))+" left. Saved "+fmtDate(new Date(p.savedAt).toISOString())+".";
+    $("resumeInfo").textContent="Week "+p.week+" mock — "+ansN+" of "+byWeek(p.week).length+" answered, "+fmt(Math.max(0,p.timeLeft))+" left. Saved "+fmtDate(new Date(p.savedAt).toISOString())+".";
   } else rc.classList.add("hidden");
   // past attempts
   const hl=$("historyList");hl.innerHTML="";
-  if(!store.history.length){hl.innerHTML='<p class="note">No completed attempts yet. Finish an exam or drill and it will appear here to review.</p>';}
+  if(!store.history.length){hl.innerHTML='<p class="note">No completed attempts yet. Finish an exam and it will appear here to review.</p>';}
   else store.history.forEach((h,i)=>{
     const pct=Math.round(100*h.correct/h.total);
     const row=document.createElement("div");row.className="histrow";
     row.innerHTML='<span class="sc">'+pct+'%</span>'+
-      '<div style="flex:1;min-width:150px"><div style="font-weight:600">Week '+h.week+' · '+(h.mode==="triage"?"drill":"mock exam")+'</div>'+
+      '<div style="flex:1;min-width:150px"><div style="font-weight:600">Week '+h.week+' · mock exam</div>'+
       '<div class="meta">'+h.correct+'/'+h.total+' · '+fmt(h.timeUsed)+' used · '+fmtDate(h.date)+'</div></div>'+
       '<button class="btn-ghost btn-sm">Review</button>';
     row.querySelector("button").onclick=()=>reviewAttempt(h);
@@ -765,7 +860,7 @@ $("resumeBtn").onclick=resumeExam;
 $("discardBtn").onclick=()=>{if(confirm("Discard the unfinished exam? Your answers so far will be lost.")){clearProgress();renderDashboard();}};
 $("exitBtn").onclick=()=>{
   if(sess&&sess.timerId){clearInterval(sess.timerId);sess.timerId=null;}
-  if(sess&&(sess.mode==="mock"||sess.mode==="triage")){saveProgress();}
+  if(sess&&sess.mode==="mock"){saveProgress();}
   sess=null;renderDashboard();show("dashboard");
 };
 $("startFocus").onclick=startFocus;
