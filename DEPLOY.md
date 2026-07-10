@@ -46,9 +46,16 @@ dashboard, then open `/app.html`.
 - **Progress is saved on that iPad only** (scores, per-category %, flagged questions).
   There's no cross-device sync and no teacher dashboard — that would need a server.
 - Don't use Safari's "Clear History and Website Data" or it will wipe saved progress.
-- **Updating questions later:** after you change `questions.js` (e.g. I add Weeks 5–8),
-  re-upload the files **and bump the cache version** in `sw.js` — change
-  `const CACHE = "nsw-maths-v1"` to `"nsw-maths-v2"`. That forces installed iPads to
-  pull the new content instead of the cached old copy.
+- **Updating questions later:** after you change `questions.js` (e.g. I add Weeks 5–8)
+  or `app.html`, just **re-upload the changed files** to the same host. Installed iPads
+  pick up the new content automatically the next time they open the app **while online**
+  — no version bump needed. (The service worker now fetches the latest app and questions
+  from the network when online, and only uses the offline copy when there's no internet.)
+  - First update after this change: each iPad may need **one extra reload** (or fully
+    close and reopen the Home-Screen app) to switch over to the new behaviour. After that,
+    updates are automatic.
+  - `sw.js` has a `const CACHE = "nsw-maths-v12"` line. You normally never touch it now;
+    only bump it (…`v13`, `v14`) if you ever want to force every device to wipe its
+    offline cache and re-download everything from scratch.
 - **Printing the workbook:** open `workbook.html` on a computer and use
   “Print / Save as PDF”. It's cached for offline too, but printing from an iPad is fiddly.
