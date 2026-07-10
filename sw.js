@@ -1,7 +1,13 @@
 /* Offline service worker for NSW Selective Maths app.
-   Cache-first for the app shell so it runs with no internet after first load.
-   Bump CACHE when you change questions.js or the app to force an update. */
-const CACHE = "nsw-maths-v10";
+   Strategy:
+     - App shell (navigations, .html, .js): NETWORK-FIRST with the HTTP cache
+       BYPASSED ({cache:"no-store"}). This is what makes re-uploaded code show up
+       on the next online load — a plain fetch() would otherwise be served from the
+       browser's HTTP cache (e.g. GitHub Pages sends max-age=600), and you'd keep
+       seeing the old version. Falls back to the Cache API only when offline.
+     - Static assets (icons, manifest): cache-first (they rarely change).
+   Bump CACHE if you want to force a full re-cache / purge on all devices. */
+const CACHE = "nsw-maths-v12";
 const ASSETS = [
   "./",
   "./app.html",
@@ -26,19 +32,31 @@ self.addEventListener("activate", e => {
   );
 });
 
+function cachePut(request, resp) {
+  if (resp && resp.status === 200 && resp.type === "basic") {
+    const copy = resp.clone();
+    caches.open(CACHE).then(c => c.put(request, copy));
+  }
+  return resp;
+}
+
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
-  e.respondWith(
-    caches.match(e.request).then(hit => {
-      if (hit) return hit;
-      return fetch(e.request).then(resp => {
-        // cache newly fetched same-origin assets for next time
-        if (resp && resp.status === 200 && resp.type === "basic") {
-          const copy = resp.clone();
-          caches.open(CACHE).then(c => c.put(e.request, copy));
-        }
-        return resp;
-      }).catch(() => caches.match("./app.html"));
-    })
-  );
+  const url = new URL(e.request.url);
+  const isAppShell = e.request.mode === "navigate" || /\.(html|js)$/.test(url.pathname);
+
+  if (isAppShell) {
+    // NETWORK-FIRST, HTTP cache bypassed: always fetch the freshest code online,
+    // store it for offline, and fall back to the cache when the network is down.
+    e.respondWith(
+      fetch(url.href, { cache: "no-store" })
+        .then(resp => cachePut(e.request, resp))
+        .catch(() => caches.match(e.request).then(hit => hit || caches.match("./app.html")))
+    );
+  } else {
+    // CACHE-FIRST: fast, offline-friendly for static assets.
+    e.respondWith(
+      caches.match(e.request).then(hit => hit || fetch(e.request).then(resp => cachePut(e.request, resp)))
+    );
+  }
 });
