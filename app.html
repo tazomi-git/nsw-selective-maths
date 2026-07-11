@@ -37,6 +37,7 @@
   .weekcard .best{font-size:13px;color:var(--muted)}
   .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:#eff6ff;color:var(--brand)}
   .badge.done{background:var(--ok-bg);color:var(--ok)}
+  .badge.todo{background:#fef3c7;color:#92400e}
   button{font:inherit;cursor:pointer;border:none;border-radius:10px;padding:10px 16px;font-weight:600;transition:.15s}
   button:disabled{opacity:.45;cursor:default}
   .btn-primary{background:var(--brand);color:#fff}
@@ -197,13 +198,10 @@
       <div class="row">
         <h2 style="margin:0">Focused study</h2>
         <span class="spacer"></span>
-        <span id="flagCount" class="pill">0 flagged</span>
-      </div>
-      <p class="note">Skills you get wrong are marked for focused study. For each one you see a <b>concept card</b> (principle, method, worked example), then <b>the question you missed</b> to re-attempt, then <b>fresh variants</b> — same method, new numbers, often reversed (e.g. find the total instead of a share). Skills are <b>interleaved</b> so you must pick the right method, and once mastered they <b>come back for spaced review</b> a few days later so they stick.</p>
-      <div class="row">
-        <button id="startFocus" class="btn-warn">Start focused study</button>
         <button id="clearFlags" class="btn-ghost btn-sm">Clear all flags</button>
       </div>
+      <p class="note">Each week's exam has its own focused study, built from the skills you got wrong in <b>that</b> week. For each skill you get a <b>concept card</b> (principle, method, worked example) and then <b>brand-new "now you try" questions</b> — same method, new numbers, often reversed (e.g. find the total instead of a share). <b>The exam questions themselves are never repeated</b>, so you're always tested on fresh problems. Skills are <b>interleaved</b> so you must pick the right method, and once mastered they <b>come back for spaced review</b> a few days later so they stick.</p>
+      <div id="focusGrid" class="grid-weeks"></div>
     </div>
 
     <div class="card">
@@ -354,6 +352,14 @@ function strugglingIds(){return Object.keys(store.flagged).filter(id=>(store.fla
 function dueReviewIds(){const n=Date.now();return Object.keys(store.flagged).filter(id=>{const f=store.flagged[id];return (f.box||0)>=1&&(f.due||0)<=n;});}
 function practiceIds(){return Array.from(new Set(strugglingIds().concat(dueReviewIds())));}
 function activeFlags(){return practiceIds();}
+// a flagged skill belongs to the week of the exam question that flagged it
+function weekOfFlag(id){const q=qById(id);return q?q.week:null;}
+function practiceIdsForWeek(w){return practiceIds().filter(id=>weekOfFlag(id)===w);}
+function focusCountsForWeek(w){
+  const s=strugglingIds().filter(id=>weekOfFlag(id)===w).length;
+  const d=dueReviewIds().filter(id=>weekOfFlag(id)===w).length;
+  return {struggling:s,due:d,total:s+d};
+}
 function conceptKeyOf(q){return q._concept||((typeof TOPIC_CONCEPT!=="undefined"&&TOPIC_CONCEPT[q.topic])||q.topic);}
 function conceptFor(q){const k=conceptKeyOf(q);return (k&&typeof CONCEPTS!=="undefined"&&CONCEPTS[k])?{key:k,c:CONCEPTS[k]}:null;}
 function interleave(items,keyFn){const g={};items.forEach(it=>{const k=keyFn(it);(g[k]=g[k]||[]).push(it);});const ks=Object.keys(g);const out=[];let n=items.length;while(n>0){for(const k of ks){if(g[k].length){out.push(g[k].shift());n--;}}}return out;}
@@ -408,33 +414,39 @@ function startExam(week){
         idx:0,timeLeft:TOTAL_TIME,timerId:null,qTime:{},curStart:null};
   beginSession(true);
 }
-function startFocus(){
-  const ids=practiceIds();
-  if(!ids.length){alert("Nothing to practise right now — finish a mock exam, or come back when spaced reviews are due.");return;}
-  // group flagged skills by concept; serve fresh bidirectional variants where we have a generator
+function startFocus(week){
+  const ids=(week!=null)?practiceIdsForWeek(week):practiceIds();
+  if(!ids.length){alert(week!=null?("Nothing to practise for Week "+week+" right now — ace the exam, or come back when spaced reviews are due."):"Nothing to practise right now — finish a mock exam, or come back when spaced reviews are due.");return;}
+  // Every question the student has already been shown in an exam (all questions of
+  // every week they've attempted). Focused study must NEVER re-serve one of these.
+  const seenIds=new Set();
+  store.history.forEach(h=>{if(h.week!=null)byWeek(h.week).forEach(q=>seenIds.add(q.id));});
+  // group the flagged skills by concept
   const byConcept={};
   ids.forEach(id=>{const q=qById(id);if(!q)return;(byConcept[conceptKeyOf(q)]=byConcept[conceptKeyOf(q)]||[]).push(id);});
   let items=[];
   Object.keys(byConcept).forEach(c=>{
     const flagIds=byConcept[c];
-    const gen=(typeof hasGenerator==="function"&&hasGenerator(c));
-    flagIds.forEach(id=>{
-      // 1) REVIEW: the exact question you missed, shown with its worked explanation + method card
-      const rev=Object.assign({},qById(id));rev._flagIds=[id];rev._concept=c;rev._kind="review";items.push(rev);
-      // if we can't make fresh variants for this skill, re-attempt the same question after reviewing it
-      if(!gen){const at=Object.assign({},qById(id));at._flagIds=[id];at._concept=c;at._kind="missed";items.push(at);}
-    });
-    // 2) NOW YOU TRY: fresh bidirectional variants of the skill
-    if(gen){for(let i=0;i<2;i++){const v=generateVariant(c);if(v){v._flagIds=flagIds.slice();v._concept=c;v._kind="variant";items.push(v);}}}
+    const want=Math.min(3,Math.max(2,flagIds.length));   // a couple of fresh questions per skill
+    if(typeof hasGenerator==="function"&&hasGenerator(c)){
+      // fresh generated "now you try" questions — new numbers each time, never from the exam
+      for(let i=0;i<want;i++){const v=generateVariant(c);if(v){v._flagIds=flagIds.slice();v._concept=c;v._kind="variant";items.push(v);}}
+    }else{
+      // no generator: use OTHER bank questions on the same skill that the student
+      // has not seen in any exam (and isn't already flagged on) — still never a repeat
+      const pool=QUESTIONS.filter(q=>conceptKeyOf(q)===c&&!seenIds.has(q.id)&&!store.flagged[q.id]);
+      pool.slice(0,want).forEach(q=>{const nq=Object.assign({},q);nq._flagIds=flagIds.slice();nq._concept=c;nq._kind="variant";items.push(nq);});
+    }
   });
+  if(!items.length){alert("No fresh practice questions are available for those skills yet — they'll appear as more questions are added.");return;}
   items=interleave(items,it=>it._concept);
-  sess={mode:"focus",week:null,questions:items,answers:{},flags:new Set(),
+  sess={mode:"focus",week:(week!=null?week:null),questions:items,answers:{},flags:new Set(),
         idx:0,timeLeft:null,timerId:null,qTime:{},curStart:null,learned:new Set(),phase:"try",review:false};
   beginSession(false);
 }
 function beginSession(timed){
   sess.learned=new Set();sess.phase="try";
-  $("totalCount").textContent=sess.questions.filter(q=>q._kind!=="review").length||sess.questions.length;
+  $("totalCount").textContent=sess.questions.length;
   $("qTotal").textContent=sess.questions.length;
   $("timer").style.display=timed?"":"none";
   $("submitBtn").textContent=sess.mode==="focus"?"Finish practice":"Submit paper";
@@ -477,7 +489,7 @@ function renderQuestion(){
   const q=sess.questions[sess.idx];
   $("qCat").textContent=q.category;
   const dEl=$("qDiff");dEl.className="diff "+q.difficulty;dEl.textContent=DIFF_NAME[q.difficulty];
-  const prefix=sess.mode==="focus"?"Practice · ":"";
+  const prefix=sess.mode==="focus"?((sess.week!=null?"Week "+sess.week+" ":"")+"practice · "):"";
   $("qId").textContent=prefix+"Q"+(sess.idx+1);
   const cf=sess.mode==="focus"?conceptFor(q):null;
   const cc=$("conceptCard");
@@ -485,27 +497,10 @@ function renderQuestion(){
     const firstTime=!sess.learned.has(cf.key);   // expand the method the first time this skill appears
     cc.className="";
     cc.innerHTML='<details class="methodDetails"'+(firstTime?" open":"")+'><summary>📘 Method — '+esc(cf.c.title)+'</summary><div style="margin-top:8px">'+conceptHTML(cf.c)+'</div></details>';
-    $("qId").textContent=q._kind==="variant"?"✨ Practice variant":(q._kind==="missed"?"✨ Now you try":"📌 The question you missed");
+    $("qId").textContent=(sess.week!=null?"Week "+sess.week+" · ":"")+"✨ Now you try";
   }else{cc.className="hidden";cc.innerHTML="";}
   $("qText").textContent=q.question;
   const list=$("optList");list.innerHTML="";
-  // REVIEW item: read-only — show the correct answer + worked explanation, then a "Now you try" button
-  if(sess.mode==="focus"&&q._kind==="review"){
-    LETTERS.forEach(L=>{
-      const div=document.createElement("div");
-      div.className="opt"+(L===q.answer?" correct":"");div.style.cursor="default";
-      div.innerHTML='<div class="lab">'+L+'</div><div class="otext"></div>';
-      div.querySelector(".otext").textContent=q.options[L];
-      list.appendChild(div);
-    });
-    const e=document.createElement("div");e.className="expl";
-    e.innerHTML="<b>Correct answer: "+q.answer+".</b> ";e.appendChild(document.createTextNode(q.explanation));
-    list.appendChild(e);
-    const b=document.createElement("button");b.className="btn-primary";b.style.marginTop="14px";b.textContent="Now you try →";
-    b.onclick=()=>{if(sess.idx<sess.questions.length-1)goTo(sess.idx+1);else finishExam(false);};
-    list.appendChild(b);
-    $("qNum").textContent=sess.idx+1;setControls();return;
-  }
   const answered=sess.answers[q.id];
   const reveal=sess.mode==="focus"&&answered;
   LETTERS.forEach(L=>{
@@ -557,7 +552,7 @@ function renderNav(){
   $("navLegend").textContent="Blue = answered · amber underline = flagged · outline = current.";
 }
 function updateProg(){
-  const qs=sess.questions.filter(q=>q._kind!=="review");
+  const qs=sess.questions;
   const n=qs.filter(q=>sess.answers[q.id]).length;
   $("answeredCount").textContent=n;
   $("examProg").style.width=(qs.length?100*n/qs.length:0)+"%";
@@ -757,7 +752,7 @@ function esc(s){const d=document.createElement("div");d.textContent=s;return d.i
 $("onlyWrong").onchange=renderReview;
 $("submitBtn").onclick=()=>finishExam(false);
 $("backHome").onclick=()=>{renderDashboard();show("dashboard");};
-$("retryWrong").onclick=()=>{renderDashboard();startFocus();};
+$("retryWrong").onclick=()=>{const w=sess&&sess.week;renderDashboard();startFocus(w);};
 
 // ---------- dashboard ----------
 function catBar(name,correct,total,pct){
@@ -829,9 +824,32 @@ function renderDashboard(){
     g.appendChild(card);
   });
   renderTimeBreakdown();
-  const sN=strugglingIds().length,dN=dueReviewIds().length;
-  $("flagCount").textContent=(sN+dN)+" to practise"+(dN?" · "+dN+" review":"");
-  $("startFocus").disabled=(sN+dN)===0;
+  // per-week focused study — one card per week, built from that week's exam misses
+  const fg=$("focusGrid");fg.innerHTML="";
+  [1,2,3,4].forEach(w=>{
+    const attempted=store.history.some(h=>h.week===w);
+    const c=focusCountsForWeek(w);
+    const card=document.createElement("div");card.className="weekcard";
+    let badge,status,disabled;
+    if(c.total){
+      badge='<span class="badge todo">'+c.total+' to practise</span>';
+      status=c.struggling+' new'+(c.due?' · '+c.due+' due for review':'');
+      disabled=false;
+    }else if(attempted){
+      badge='<span class="badge done">All clear</span>';
+      status='Every missed skill mastered 🎉';
+      disabled=true;
+    }else{
+      badge='<span class="badge">Not attempted</span>';
+      status='Do the Week '+w+' exam to build this';
+      disabled=true;
+    }
+    card.innerHTML='<div class="row"><span class="wtitle">Week '+w+'</span><span class="spacer"></span>'+badge+'</div>'+
+      '<div class="best">'+status+'</div>'+
+      '<button class="btn-warn btn-sm"'+(disabled?' disabled':'')+'>Start focus</button>';
+    if(!disabled)card.querySelector("button").onclick=()=>startFocus(w);
+    fg.appendChild(card);
+  });
   const cp=$("catProgress");cp.innerHTML="";
   CATEGORIES.forEach(c=>{const s=store.categoryStats[c];const pct=s.seen?Math.round(100*s.correct/s.seen):0;cp.appendChild(catBar(c,s.correct,s.seen,pct));});
   $("attemptCount").textContent=store.attempts;
@@ -863,7 +881,6 @@ $("exitBtn").onclick=()=>{
   if(sess&&sess.mode==="mock"){saveProgress();}
   sess=null;renderDashboard();show("dashboard");
 };
-$("startFocus").onclick=startFocus;
 $("clearFlags").onclick=()=>{if(confirm("Clear all focused-study flags?")){store.flagged={};save(store);renderDashboard();}};
 $("resetAll").onclick=()=>{if(confirm("Erase ALL saved progress, scores and flags on this device?")){store=blankStore();save(store);renderDashboard();}};
 

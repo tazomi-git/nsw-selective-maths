@@ -1,0 +1,3 @@
+# Local-only tooling / OS files — not part of the deployed app
+.claude/
+.DS_Store
