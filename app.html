@@ -125,23 +125,6 @@
   .concept .eg b{color:var(--brand-dark)}
   details.methodDetails{margin-bottom:12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:8px 12px}
   details.methodDetails summary{color:var(--brand);font-weight:700}
-  .tbSelect{font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);max-width:60%}
-  .tbSummary{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:10px 0 12px}
-  .tbSummary b{color:var(--ink);font-variant-numeric:tabular-nums}
-  .tbtable{width:100%;border-collapse:collapse;font-size:13px}
-  .tbtable td{border-bottom:1px solid var(--line);padding:8px 8px;vertical-align:middle}
-  .tbtable tr:last-child td{border-bottom:none}
-  .tbtable .tbq{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
-  .tbtable .tbcat{color:var(--muted)}
-  .tbtime{width:42%;min-width:150px}
-  .tbtime .lane{display:flex;align-items:center;gap:8px}
-  .tbtime .track{flex:1;height:8px;background:#eef2f7;border-radius:999px;overflow:hidden}
-  .tbtime .track i{display:block;height:100%;border-radius:999px;background:var(--brand)}
-  .tr-ok .tbtime .track i{background:var(--ok)} .tr-no .tbtime .track i{background:var(--bad)} .tr-blank .tbtime .track i{background:#cbd5e1}
-  .tbtime .secs{font-variant-numeric:tabular-nums;font-weight:600;min-width:38px;text-align:right}
-  .tbres{text-align:right;white-space:nowrap;font-weight:700;font-size:12px}
-  .tbres.ok{color:var(--ok)} .tbres.no{color:var(--bad)} .tbres.blank{color:var(--muted)}
-  @media(max-width:560px){.tbtable .tbcat{display:none}.tbtime{width:auto}}
   .histrow{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;flex-wrap:wrap}
   .histrow .sc{font-weight:800;font-size:16px;min-width:60px}
   .histrow .meta{font-size:13px;color:var(--muted)}
@@ -182,16 +165,6 @@
       <h2>Weekly mock exams</h2>
       <p class="note">Each paper mirrors the real test: 35 multiple-choice questions (A–E), 40-minute countdown, balanced across the five strands. Your best result per week is saved on this device.</p>
       <div id="weekGrid" class="grid-weeks"></div>
-    </div>
-
-    <div class="card">
-      <div class="row">
-        <h2 style="margin:0">⏱ Time &amp; accuracy review</h2>
-        <span class="spacer"></span>
-        <select id="tbSelect" class="tbSelect"></select>
-      </div>
-      <p class="note">A question-by-question breakdown of a completed exam: how long you spent on each question, next to whether you got it right. The time bars make it easy to spot which questions ate the clock — and whether that time actually earned the mark.</p>
-      <div id="timeBreakdown"></div>
     </div>
 
     <div class="card">
@@ -762,54 +735,6 @@ function catBar(name,correct,total,pct){
   row.querySelector(".name").textContent=name;
   return row;
 }
-// ---------- time & accuracy review ----------
-function renderTimeBreakdown(){
-  const sel=$("tbSelect");const wrap=$("timeBreakdown");
-  if(!store.history.length){
-    sel.style.display="none";sel.innerHTML="";
-    wrap.innerHTML='<p class="note">No completed exams yet. Finish a mock exam and its per-question time breakdown will appear here.</p>';
-    return;
-  }
-  sel.style.display="";
-  sel.innerHTML=store.history.map((h,i)=>
-    '<option value="'+i+'">Week '+h.week+' · mock exam · '+
-    Math.round(100*h.correct/h.total)+'% · '+fmtDate(h.date)+'</option>').join("");
-  sel.onchange=()=>renderBreakdownFor(store.history[+sel.value],wrap);
-  renderBreakdownFor(store.history[0],wrap);
-}
-function renderBreakdownFor(h,wrap){
-  const qs=byWeek(h.week);const qt=h.qTime||{};
-  let maxT=1,totT=0,correct=0,wrong=0,blank=0;
-  qs.forEach(q=>{const t=Math.round(qt[q.id]||0);if(t>maxT)maxT=t;totT+=t;});
-  let rows="";
-  qs.forEach((q,i)=>{
-    const t=Math.round(qt[q.id]||0);
-    const a=(h.answers||{})[q.id];
-    const state=!a?"blank":(a===q.answer?"ok":"no");
-    if(state==="ok")correct++;else if(state==="no")wrong++;else blank++;
-    const label=state==="ok"?"✓ Correct":(state==="no"?"✗ Wrong":"— Skipped");
-    const w=Math.round(100*t/maxT);
-    rows+='<tr class="tr-'+state+'">'+
-      '<td class="tbq">Q'+(i+1)+'</td>'+
-      '<td><span class="diff '+q.difficulty+'">'+DIFF_NAME[q.difficulty]+'</span></td>'+
-      '<td class="tbcat"></td>'+
-      '<td class="tbtime"><div class="lane"><div class="track"><i style="width:'+w+'%"></i></div>'+
-      '<span class="secs">'+t+'s</span></div></td>'+
-      '<td class="tbres '+state+'">'+label+'</td></tr>';
-  });
-  const answered=correct+wrong;
-  const avg=answered?Math.round(totT/answered):0;
-  wrap.innerHTML='<div class="tbSummary">'+
-    '<span><b>'+fmt(h.timeUsed)+'</b> total time</span>'+
-    '<span><b>'+avg+'s</b> avg / answered</span>'+
-    '<span style="color:var(--ok)"><b>'+correct+'</b> correct</span>'+
-    '<span style="color:var(--bad)"><b>'+wrong+'</b> wrong</span>'+
-    '<span><b>'+blank+'</b> skipped</span></div>'+
-    '<table class="tbtable"><tbody>'+rows+'</tbody></table>';
-  // set categories safely (avoid HTML injection from question text)
-  const cells=wrap.querySelectorAll(".tbtable .tbcat");
-  qs.forEach((q,i)=>{if(cells[i])cells[i].textContent=q.category;});
-}
 function renderDashboard(){
   const g=$("weekGrid");g.innerHTML="";
   [1,2,3,4].forEach(w=>{
@@ -823,7 +748,6 @@ function renderDashboard(){
     card.querySelector("button").onclick=()=>startExam(w);
     g.appendChild(card);
   });
-  renderTimeBreakdown();
   // per-week focused study — one card per week, built from that week's exam misses
   const fg=$("focusGrid");fg.innerHTML="";
   [1,2,3,4].forEach(w=>{
